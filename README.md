@@ -1,6 +1,6 @@
 # forest-wares
 
-[![Coverage status](https://coveralls.io/repos/ursiform/forest-wares/badge.svg)](https://coveralls.io/r/ursiform/forest-wares)
+[![Coverage Status](https://coveralls.io/repos/ursiform/forest-wares/badge.svg?branch=master&service=github)](https://coveralls.io/github/ursiform/forest-wares?branch=master)
 
 [![API documentation](https://godoc.org/github.com/ursiform/forest-wares?status.svg)](https://godoc.org/github.com/ursiform/forest-wares)
 
