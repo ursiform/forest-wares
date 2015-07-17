@@ -269,6 +269,18 @@ func TestServerError(t *testing.T) {
 	makeRequest(t, app, params, want)
 }
 
+func TestSessionGetSuccessCreateEmpty(t *testing.T) {
+	debug := true
+	method := "GET"
+	root := "/foo"
+	path := "/foo/session-get"
+	app := forest.New(debug)
+	app.RegisterRoute(root, newRouter(app))
+	params := &requested{method: method, path: path}
+	want := &wanted{code: http.StatusOK, success: true}
+	makeRequest(t, app, params, want)
+}
+
 func TestUnauthorized(t *testing.T) {
 	debug := false
 	method := "GET"
