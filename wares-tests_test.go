@@ -106,6 +106,32 @@ func TestBadRequest(t *testing.T) {
 	makeRequest(t, app, params, want)
 }
 
+func TestBodyParserFailureNoInit(t *testing.T) {
+	debug := false
+	method := "POST"
+	root := "/foo"
+	path := "/foo/body-parser/failure/no-init"
+	body := []byte("{\"foo\": \"bar\"}")
+	app := forest.New(debug)
+	app.RegisterRoute(root, newRouter(app))
+	params := &requested{body: body, method: method, path: path}
+	want := &wanted{code: http.StatusInternalServerError, success: false}
+	makeRequest(t, app, params, want)
+}
+
+func TestBodyParserSuccess(t *testing.T) {
+	debug := false
+	method := "POST"
+	root := "/foo"
+	path := "/foo/body-parser/success"
+	body := []byte("{\"foo\": \"bar\"}")
+	app := forest.New(debug)
+	app.RegisterRoute(root, newRouter(app))
+	params := &requested{body: body, method: method, path: path}
+	want := &wanted{code: http.StatusOK, success: true}
+	makeRequest(t, app, params, want)
+}
+
 func TestConflict(t *testing.T) {
 	debug := false
 	method := "GET"

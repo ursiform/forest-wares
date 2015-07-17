@@ -13,11 +13,11 @@ import (
 
 func BodyParser(app *forest.App) bear.HandlerFunc {
 	return bear.HandlerFunc(func(res http.ResponseWriter, req *http.Request, ctx *bear.Context) {
-		destination, ok := ctx.Get(forest.Body).(forest.Populater)
+		destination, ok := ctx.Get(forest.Body).(Populater)
 		if !ok {
-			ctx.Set(forest.Error, fmt.Errorf("(*forest.App).BodyParser"))
+			ctx.Set(forest.Error, fmt.Errorf("(*forest.App).BodyParser unitialized"))
 			message := safeErrorMessage(app, ctx, app.Error("Parse"))
-			app.Response(res, http.StatusBadRequest, forest.Failure, message).Write(nil)
+			app.Response(res, http.StatusInternalServerError, forest.Failure, message).Write(nil)
 			return
 		}
 		if req.Body == nil {
