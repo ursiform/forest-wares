@@ -81,6 +81,18 @@ func TestAuthenticateSuccess(t *testing.T) {
 	makeRequest(t, app, params, want)
 }
 
+func TestBadRequest(t *testing.T) {
+	debug := false
+	method := "GET"
+	root := "/foo"
+	path := "/foo/bad-request"
+	app := forest.New(debug)
+	app.RegisterRoute(root, newRouter(app))
+	params := &requested{method: method, path: path}
+	want := &wanted{code: http.StatusBadRequest, success: false}
+	makeRequest(t, app, params, want)
+}
+
 func TestMethodNotAllowed(t *testing.T) {
 	debug := false
 	method := "OPTIONS"
