@@ -18,12 +18,11 @@ type responseFormat struct {
 type router struct{ *forest.App }
 
 func (app *router) authenticate(res http.ResponseWriter, req *http.Request, ctx *bear.Context) {
-	ctx.Set(forest.SessionID, "some session id").Set(forest.SessionUserID, "some user id").Next(res, req)
+	ctx.Set(forest.SessionID, sessionID).Set(forest.SessionUserID, sessionUserID).Next(res, req)
 }
 
 func (app *router) respondSuccess(res http.ResponseWriter, req *http.Request, ctx *bear.Context) {
 	data := &responseFormat{Foo: "foo"}
-	println(req.URL.Path)
 	app.Response(res, http.StatusOK, forest.Success, forest.NoMessage).Write(data)
 }
 
@@ -33,6 +32,7 @@ func (app *router) Route(path string) {
 	app.Router.On("GET", path+"/authenticate/success", app.authenticate, app.Ware("Authenticate"), app.respondSuccess)
 	app.Router.On("GET", path+"/bad-request", app.Ware("BadRequest"))
 	app.Router.On("GET", path+"/conflict", app.Ware("Conflict"))
+	app.Router.On("GET", path+"/csrf", app.authenticate, app.Ware("CSRF"), app.respondSuccess)
 	app.Router.On("GET", path+"/not-found", app.Ware("NotFound"))
 	app.Router.On("GET", path+"/server-error", app.Ware("ServerError"))
 	app.Router.On("GET", path+"/unauthorized", app.Ware("Unauthorized"))

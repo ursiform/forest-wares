@@ -9,7 +9,9 @@ Package wares_test contains tests and examples for package wares. The goal is
 package wares_test
 
 import (
+	"bytes"
 	"encoding/json"
+	"fmt"
 	"github.com/ursiform/forest"
 	"io/ioutil"
 	"net/http"
@@ -17,7 +19,13 @@ import (
 	"testing"
 )
 
+const (
+	sessionID     = "SOME-SESSION-ID"
+	sessionUserID = "SOME-USER-ID"
+)
+
 type requested struct {
+	body   []byte
 	method string
 	path   string
 }
@@ -32,7 +40,12 @@ func makeRequest(t *testing.T, app *forest.App, params *requested, want *wanted)
 	var request *http.Request
 	method := params.method
 	path := params.path
-	request, _ = http.NewRequest(method, path, nil)
+	body := params.body
+	if body != nil {
+		request, _ = http.NewRequest(method, path, bytes.NewBuffer(body))
+	} else {
+		request, _ = http.NewRequest(method, path, nil)
+	}
 	response := httptest.NewRecorder()
 	app.Router.ServeHTTP(response, request)
 	responseData := new(forest.Response)
@@ -102,6 +115,70 @@ func TestConflict(t *testing.T) {
 	app.RegisterRoute(root, newRouter(app))
 	params := &requested{method: method, path: path}
 	want := &wanted{code: http.StatusConflict, success: false}
+	makeRequest(t, app, params, want)
+}
+
+func TestCSRFFailureBodyNil(t *testing.T) {
+	debug := false
+	method := "GET"
+	root := "/foo"
+	path := "/foo/csrf"
+	app := forest.New(debug)
+	app.RegisterRoute(root, newRouter(app))
+	params := &requested{method: method, path: path}
+	want := &wanted{code: http.StatusBadRequest, success: false}
+	makeRequest(t, app, params, want)
+}
+
+func TestCSRFFailureBodyParse(t *testing.T) {
+	debug := false
+	method := "GET"
+	root := "/foo"
+	path := "/foo/csrf"
+	body := []byte("{BAD JSON}")
+	app := forest.New(debug)
+	app.RegisterRoute(root, newRouter(app))
+	params := &requested{body: body, method: method, path: path}
+	want := &wanted{code: http.StatusBadRequest, success: false}
+	makeRequest(t, app, params, want)
+}
+
+func TestCSRFFailureBodyTooShort(t *testing.T) {
+	debug := false
+	method := "GET"
+	root := "/foo"
+	path := "/foo/csrf"
+	body := []byte("{")
+	app := forest.New(debug)
+	app.RegisterRoute(root, newRouter(app))
+	params := &requested{body: body, method: method, path: path}
+	want := &wanted{code: http.StatusBadRequest, success: false}
+	makeRequest(t, app, params, want)
+}
+
+func TestCSRFFailureWrongSessionID(t *testing.T) {
+	debug := false
+	method := "GET"
+	root := "/foo"
+	path := "/foo/csrf"
+	body := []byte(fmt.Sprintf("{\"sessionid\": \"WRONG-SESSION-ID\"}"))
+	app := forest.New(debug)
+	app.RegisterRoute(root, newRouter(app))
+	params := &requested{body: body, method: method, path: path}
+	want := &wanted{code: http.StatusBadRequest, success: false}
+	makeRequest(t, app, params, want)
+}
+
+func TestCSRFSuccess(t *testing.T) {
+	debug := false
+	method := "GET"
+	root := "/foo"
+	path := "/foo/csrf"
+	body := []byte(fmt.Sprintf("{\"sessionid\": \"%s\"}", sessionID))
+	app := forest.New(debug)
+	app.RegisterRoute(root, newRouter(app))
+	params := &requested{body: body, method: method, path: path}
+	want := &wanted{code: http.StatusOK, success: true}
 	makeRequest(t, app, params, want)
 }
 

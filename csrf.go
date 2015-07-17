@@ -24,10 +24,9 @@ func CSRF(app *forest.App) bear.HandlerFunc {
 			return
 		}
 		pb := new(csrfPostBody)
-		body, err := ioutil.ReadAll(req.Body)
-		if err != nil {
-			ctx.Set(forest.Error, err)
-			message := safeErrorMessage(app, ctx, app.Error("Parse"))
+		body, _ := ioutil.ReadAll(req.Body)
+		if body == nil || len(body) < 2 { // smallest JSON body is {}, 2 chars
+			message := app.Error("Parse")
 			app.Response(res, http.StatusBadRequest, forest.Failure, message).Write(nil)
 			return
 		}
