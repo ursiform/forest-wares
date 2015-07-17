@@ -117,6 +117,18 @@ func TestMethodNotAllowed(t *testing.T) {
 	makeRequest(t, app, params, want)
 }
 
+func TestNotFound(t *testing.T) {
+	debug := false
+	method := "GET"
+	root := "/foo"
+	path := "/foo/not-found"
+	app := forest.New(debug)
+	app.RegisterRoute(root, newRouter(app))
+	params := &requested{method: method, path: path}
+	want := &wanted{code: http.StatusNotFound, success: false}
+	makeRequest(t, app, params, want)
+}
+
 func TestUnauthorized(t *testing.T) {
 	debug := false
 	method := "DELETE"
