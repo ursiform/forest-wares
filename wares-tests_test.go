@@ -106,6 +106,18 @@ func TestBadRequest(t *testing.T) {
 	makeRequest(t, app, params, want)
 }
 
+func TestBodyParserFailureBodyNil(t *testing.T) {
+	debug := false
+	method := "POST"
+	root := "/foo"
+	path := "/foo/body-parser/success"
+	app := forest.New(debug)
+	app.RegisterRoute(root, newRouter(app))
+	params := &requested{method: method, path: path}
+	want := &wanted{code: http.StatusBadRequest, success: false}
+	makeRequest(t, app, params, want)
+}
+
 func TestBodyParserFailureNoInit(t *testing.T) {
 	debug := false
 	method := "POST"
