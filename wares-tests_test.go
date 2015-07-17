@@ -93,6 +93,18 @@ func TestBadRequest(t *testing.T) {
 	makeRequest(t, app, params, want)
 }
 
+func TestConflict(t *testing.T) {
+	debug := false
+	method := "GET"
+	root := "/foo"
+	path := "/foo/conflict"
+	app := forest.New(debug)
+	app.RegisterRoute(root, newRouter(app))
+	params := &requested{method: method, path: path}
+	want := &wanted{code: http.StatusConflict, success: false}
+	makeRequest(t, app, params, want)
+}
+
 func TestMethodNotAllowed(t *testing.T) {
 	debug := false
 	method := "OPTIONS"

@@ -32,6 +32,7 @@ func (app *router) Route(path string) {
 	app.Router.On("GET", path+"/authenticate/failure", app.Ware("Authenticate"), app.respondSuccess)
 	app.Router.On("GET", path+"/authenticate/success", app.authenticate, app.Ware("Authenticate"), app.respondSuccess)
 	app.Router.On("GET", path+"/bad-request", app.Ware("BadRequest"))
+	app.Router.On("GET", path+"/conflict", app.Ware("Conflict"))
 	app.Router.On("DELETE", path, app.Ware("Unauthorized"))
 	app.Router.On("*", path, app.Ware("MethodNotAllowed"))
 }

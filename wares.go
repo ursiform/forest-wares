@@ -20,7 +20,7 @@ func InstallBodyParser(app *forest.App) {
 
 func InstallErrorWares(app *forest.App) {
 	app.InstallWare("BadRequest", ErrorsBadRequest(app), forest.WareInstalled)
-	app.InstallWare("Conflict", ErrorsBadRequest(app), forest.WareInstalled)
+	app.InstallWare("Conflict", ErrorsConflict(app), forest.WareInstalled)
 	app.InstallWare("MethodNotAllowed", ErrorsMethodNotAllowed(app), forest.WareInstalled)
 	app.InstallWare("NotFound", ErrorsNotFound(app), forest.WareInstalled)
 	app.InstallWare("ServerError", ErrorsServerError(app), forest.WareInstalled)
