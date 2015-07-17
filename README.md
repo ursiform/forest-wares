@@ -10,6 +10,12 @@
 [`forest.App`](https://godoc.org/github.com/ursiform/forest#App)
 instances.
 
+## Install
+    go get github.com/ursiform/forest-wares
+
+## Test
+    go test -cover github.com/ursiform/forest-wares
+
 ## API
 
 [![API documentation](https://godoc.org/github.com/ursiform/forest-wares?status.svg)](https://godoc.org/github.com/ursiform/forest-wares)
