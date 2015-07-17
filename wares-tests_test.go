@@ -129,6 +129,18 @@ func TestNotFound(t *testing.T) {
 	makeRequest(t, app, params, want)
 }
 
+func TestServerError(t *testing.T) {
+	debug := false
+	method := "GET"
+	root := "/foo"
+	path := "/foo/server-error"
+	app := forest.New(debug)
+	app.RegisterRoute(root, newRouter(app))
+	params := &requested{method: method, path: path}
+	want := &wanted{code: http.StatusInternalServerError, success: false}
+	makeRequest(t, app, params, want)
+}
+
 func TestUnauthorized(t *testing.T) {
 	debug := false
 	method := "DELETE"

@@ -34,6 +34,7 @@ func (app *router) Route(path string) {
 	app.Router.On("GET", path+"/bad-request", app.Ware("BadRequest"))
 	app.Router.On("GET", path+"/conflict", app.Ware("Conflict"))
 	app.Router.On("GET", path+"/not-found", app.Ware("NotFound"))
+	app.Router.On("GET", path+"/server-error", app.Ware("ServerError"))
 	app.Router.On("DELETE", path, app.Ware("Unauthorized"))
 	app.Router.On("*", path, app.Ware("MethodNotAllowed"))
 }
