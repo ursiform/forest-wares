@@ -143,9 +143,9 @@ func TestServerError(t *testing.T) {
 
 func TestUnauthorized(t *testing.T) {
 	debug := false
-	method := "DELETE"
+	method := "GET"
 	root := "/foo"
-	path := "/foo"
+	path := "/foo/unauthorized"
 	app := forest.New(debug)
 	app.RegisterRoute(root, newRouter(app))
 	params := &requested{method: method, path: path}
