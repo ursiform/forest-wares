@@ -20,11 +20,14 @@ import (
 )
 
 const (
-	sessionID     = "SOME-SESSION-ID"
-	sessionUserID = "SOME-USER-ID"
+	arbitraryJSON            = "{\"foo\": \"bar\"}"
+	customSafeErrorMessage   = "custom safe error message"
+	customUnsafeErrorMessage = "custom unsafe error message"
+	root                     = "/test"
+	sessionID                = "SOME-SESSION-ID"
+	sessionUserID            = "SOME-USER-ID"
+	sessionUserJSON          = "{\"id\": \"" + sessionUserID + "\"}"
 )
-
-var sessionUserJSON = fmt.Sprintf("{\"id\": \"%s\"}", sessionUserID)
 
 type requested struct {
 	auth   string
@@ -39,7 +42,7 @@ type wanted struct {
 	data    interface{}
 }
 
-func makeRequest(t *testing.T, app *forest.App, params *requested, want *wanted) *http.Response {
+func makeRequest(t *testing.T, app *forest.App, params *requested, want *wanted) (*http.Response, *forest.Response) {
 	var request *http.Request
 	method := params.method
 	auth := params.auth
@@ -59,29 +62,28 @@ func makeRequest(t *testing.T, app *forest.App, params *requested, want *wanted)
 	responseBody, err := ioutil.ReadAll(response.Body)
 	if err != nil {
 		t.Error(err)
-		return nil
+		return nil, responseData
 	}
 	if err := json.Unmarshal(responseBody, responseData); err != nil {
 		t.Errorf("unmarshal error: %v when attempting to read: %s", err, string(responseBody))
-		return nil
+		return nil, responseData
 	}
 	if response.Code != want.code {
 		t.Errorf("%s %s want: %d (%s) got: %d %s, body: %s", method, path,
 			want.code, http.StatusText(want.code), response.Code, http.StatusText(response.Code), string(responseBody))
-		return nil
+		return nil, responseData
 	}
 	if responseData.Success != want.success {
 		t.Errorf("%s %s should return success: %t", method, path, want.success)
-		return nil
+		return nil, responseData
 	}
-	return &http.Response{Header: response.Header()}
+	return &http.Response{Header: response.Header()}, responseData
 }
 
 func TestAuthenticateFailure(t *testing.T) {
 	debug := false
 	method := "GET"
-	root := "/foo"
-	path := "/foo/authenticate/failure"
+	path := root + "/authenticate/failure"
 	app := forest.New(debug)
 	app.RegisterRoute(root, newRouter(app))
 	params := &requested{method: method, path: path}
@@ -92,8 +94,7 @@ func TestAuthenticateFailure(t *testing.T) {
 func TestAuthenticateSuccess(t *testing.T) {
 	debug := false
 	method := "GET"
-	root := "/foo"
-	path := "/foo/authenticate/success"
+	path := root + "/authenticate/success"
 	app := forest.New(debug)
 	app.RegisterRoute(root, newRouter(app))
 	params := &requested{method: method, path: path}
@@ -104,8 +105,7 @@ func TestAuthenticateSuccess(t *testing.T) {
 func TestBadRequest(t *testing.T) {
 	debug := false
 	method := "GET"
-	root := "/foo"
-	path := "/foo/bad-request"
+	path := root + "/bad-request"
 	app := forest.New(debug)
 	app.RegisterRoute(root, newRouter(app))
 	params := &requested{method: method, path: path}
@@ -116,8 +116,7 @@ func TestBadRequest(t *testing.T) {
 func TestBodyParserFailureBadInput(t *testing.T) {
 	debug := false
 	method := "POST"
-	root := "/foo"
-	path := "/foo/body-parser/success"
+	path := root + "/body-parser/success"
 	body := []byte("{BAD JSON}")
 	app := forest.New(debug)
 	app.RegisterRoute(root, newRouter(app))
@@ -129,8 +128,7 @@ func TestBodyParserFailureBadInput(t *testing.T) {
 func TestBodyParserFailureBodyNil(t *testing.T) {
 	debug := false
 	method := "POST"
-	root := "/foo"
-	path := "/foo/body-parser/success"
+	path := root + "/body-parser/success"
 	app := forest.New(debug)
 	app.RegisterRoute(root, newRouter(app))
 	params := &requested{method: method, path: path}
@@ -141,9 +139,8 @@ func TestBodyParserFailureBodyNil(t *testing.T) {
 func TestBodyParserFailureNoInit(t *testing.T) {
 	debug := false
 	method := "POST"
-	root := "/foo"
-	path := "/foo/body-parser/failure/no-init"
-	body := []byte("{\"foo\": \"bar\"}")
+	path := root + "/body-parser/failure/no-init"
+	body := []byte(arbitraryJSON)
 	app := forest.New(debug)
 	app.RegisterRoute(root, newRouter(app))
 	params := &requested{body: body, method: method, path: path}
@@ -154,9 +151,8 @@ func TestBodyParserFailureNoInit(t *testing.T) {
 func TestBodyParserSuccess(t *testing.T) {
 	debug := false
 	method := "POST"
-	root := "/foo"
-	path := "/foo/body-parser/success"
-	body := []byte("{\"foo\": \"bar\"}")
+	path := root + "/body-parser/success"
+	body := []byte(arbitraryJSON)
 	app := forest.New(debug)
 	app.RegisterRoute(root, newRouter(app))
 	params := &requested{body: body, method: method, path: path}
@@ -167,8 +163,7 @@ func TestBodyParserSuccess(t *testing.T) {
 func TestConflict(t *testing.T) {
 	debug := false
 	method := "GET"
-	root := "/foo"
-	path := "/foo/conflict"
+	path := root + "/conflict"
 	app := forest.New(debug)
 	app.RegisterRoute(root, newRouter(app))
 	params := &requested{method: method, path: path}
@@ -179,8 +174,7 @@ func TestConflict(t *testing.T) {
 func TestCSRFFailureBodyNil(t *testing.T) {
 	debug := false
 	method := "GET"
-	root := "/foo"
-	path := "/foo/csrf"
+	path := root + "/csrf"
 	app := forest.New(debug)
 	app.RegisterRoute(root, newRouter(app))
 	params := &requested{method: method, path: path}
@@ -191,8 +185,7 @@ func TestCSRFFailureBodyNil(t *testing.T) {
 func TestCSRFFailureBodyParse(t *testing.T) {
 	debug := false
 	method := "GET"
-	root := "/foo"
-	path := "/foo/csrf"
+	path := root + "/csrf"
 	body := []byte("{BAD JSON}")
 	app := forest.New(debug)
 	app.RegisterRoute(root, newRouter(app))
@@ -204,8 +197,7 @@ func TestCSRFFailureBodyParse(t *testing.T) {
 func TestCSRFFailureBodyTooShort(t *testing.T) {
 	debug := false
 	method := "GET"
-	root := "/foo"
-	path := "/foo/csrf"
+	path := root + "/csrf"
 	body := []byte("{")
 	app := forest.New(debug)
 	app.RegisterRoute(root, newRouter(app))
@@ -217,8 +209,7 @@ func TestCSRFFailureBodyTooShort(t *testing.T) {
 func TestCSRFFailureWrongSessionID(t *testing.T) {
 	debug := false
 	method := "GET"
-	root := "/foo"
-	path := "/foo/csrf"
+	path := root + "/csrf"
 	body := []byte(fmt.Sprintf("{\"sessionid\": \"WRONG-SESSION-ID\"}"))
 	app := forest.New(debug)
 	app.RegisterRoute(root, newRouter(app))
@@ -230,8 +221,7 @@ func TestCSRFFailureWrongSessionID(t *testing.T) {
 func TestCSRFSuccess(t *testing.T) {
 	debug := false
 	method := "GET"
-	root := "/foo"
-	path := "/foo/csrf"
+	path := root + "/csrf"
 	body := []byte(fmt.Sprintf("{\"sessionid\": \"%s\"}", sessionID))
 	app := forest.New(debug)
 	app.RegisterRoute(root, newRouter(app))
@@ -243,8 +233,7 @@ func TestCSRFSuccess(t *testing.T) {
 func TestMethodNotAllowed(t *testing.T) {
 	debug := false
 	method := "OPTIONS"
-	root := "/foo"
-	path := "/foo"
+	path := root
 	app := forest.New(debug)
 	app.RegisterRoute(root, newRouter(app))
 	params := &requested{method: method, path: path}
@@ -255,8 +244,7 @@ func TestMethodNotAllowed(t *testing.T) {
 func TestNotFound(t *testing.T) {
 	debug := false
 	method := "GET"
-	root := "/foo"
-	path := "/foo/not-found"
+	path := root + "/not-found"
 	app := forest.New(debug)
 	app.RegisterRoute(root, newRouter(app))
 	params := &requested{method: method, path: path}
@@ -264,11 +252,49 @@ func TestNotFound(t *testing.T) {
 	makeRequest(t, app, params, want)
 }
 
+func TestSafeErrorFilter(t *testing.T) {
+	debug := false
+	method := "GET"
+	app := forest.New(debug)
+	app.SafeErrorFilter = func(err error) error {
+		if err.Error() == customSafeErrorMessage {
+			return err
+		} else {
+			return nil
+		}
+	}
+	app.RegisterRoute(root, newRouter(app))
+	// test safe errors via custom filter
+	path := root + "/safe-error/success"
+	params := &requested{method: method, path: path}
+	want := &wanted{code: http.StatusInternalServerError, success: false}
+	_, forestResponse := makeRequest(t, app, params, want)
+	if forestResponse.Message != customSafeErrorMessage {
+		t.Errorf("%s %s should return message: %s", method, path, customSafeErrorMessage)
+	}
+	// test unsafe errors not passing through custom filter
+	path = root + "/safe-error/failure"
+	params = &requested{method: method, path: path}
+	want = &wanted{code: http.StatusInternalServerError, success: false}
+	_, forestResponse = makeRequest(t, app, params, want)
+	if forestResponse.Message == customUnsafeErrorMessage {
+		t.Errorf("%s %s should NOT return unsafe message: %s", method, path, customUnsafeErrorMessage)
+	}
+	// test unsafe errors passing through if app.Debug is true
+	app.Debug = true
+	path = root + "/safe-error/failure"
+	params = &requested{method: method, path: path}
+	want = &wanted{code: http.StatusInternalServerError, success: false}
+	_, forestResponse = makeRequest(t, app, params, want)
+	if forestResponse.Message != customUnsafeErrorMessage {
+		t.Errorf("%s %s should return unsafe message if app.Debug is true: %s", method, path, customUnsafeErrorMessage)
+	}
+}
+
 func TestServerError(t *testing.T) {
 	debug := false
 	method := "GET"
-	root := "/foo"
-	path := "/foo/server-error"
+	path := root + "/server-error"
 	app := forest.New(debug)
 	app.RegisterRoute(root, newRouter(app))
 	params := &requested{method: method, path: path}
@@ -279,8 +305,7 @@ func TestServerError(t *testing.T) {
 func TestSessionGetSuccessCreateEmpty(t *testing.T) {
 	debug := true
 	method := "GET"
-	root := "/foo"
-	path := "/foo/session-get"
+	path := root + "/session-get"
 	app := forest.New(debug)
 	app.RegisterRoute(root, newRouter(app))
 	params := &requested{method: method, path: path}
@@ -291,8 +316,7 @@ func TestSessionGetSuccessCreateEmpty(t *testing.T) {
 func TestSessionGetSuccessCookie(t *testing.T) {
 	debug := true
 	method := "GET"
-	root := "/foo"
-	path := "/foo/session-get"
+	path := root + "/session-get"
 	auth := sessionID
 	app := forest.New(debug)
 	app.RegisterRoute(root, newRouter(app))
@@ -304,8 +328,7 @@ func TestSessionGetSuccessCookie(t *testing.T) {
 func TestUnauthorized(t *testing.T) {
 	debug := false
 	method := "GET"
-	root := "/foo"
-	path := "/foo/unauthorized"
+	path := root + "/unauthorized"
 	app := forest.New(debug)
 	app.RegisterRoute(root, newRouter(app))
 	params := &requested{method: method, path: path}

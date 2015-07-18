@@ -68,6 +68,14 @@ type router struct{ *forest.App }
 func (app *router) authenticate(res http.ResponseWriter, req *http.Request, ctx *bear.Context) {
 	ctx.Set(forest.SessionID, sessionID).Set(forest.SessionUserID, sessionUserID).Next(res, req)
 }
+func (app *router) customSafeErrorFilterFailure(res http.ResponseWriter, req *http.Request, ctx *bear.Context) {
+	ctx.Set(forest.Error, errors.New(customUnsafeErrorMessage))
+	app.Ware("ServerError")(res, req, ctx)
+}
+func (app *router) customSafeErrorFilterSuccess(res http.ResponseWriter, req *http.Request, ctx *bear.Context) {
+	ctx.Set(forest.Error, errors.New(customSafeErrorMessage))
+	app.Ware("ServerError")(res, req, ctx)
+}
 func (app *router) initPostParse(res http.ResponseWriter, req *http.Request, ctx *bear.Context) {
 	ctx.Set(forest.Body, new(postBody)).Next(res, req)
 }
@@ -94,6 +102,8 @@ func (app *router) Route(path string) {
 	app.Router.On("GET", path+"/conflict", app.Ware("Conflict"))
 	app.Router.On("GET", path+"/csrf", app.authenticate, app.Ware("CSRF"), app.respondSuccess)
 	app.Router.On("GET", path+"/not-found", app.Ware("NotFound"))
+	app.Router.On("GET", path+"/safe-error/failure", app.customSafeErrorFilterFailure)
+	app.Router.On("GET", path+"/safe-error/success", app.customSafeErrorFilterSuccess)
 	app.Router.On("GET", path+"/server-error", app.Ware("ServerError"))
 	app.Router.On("GET", path+"/session-get", app.Ware("SessionGet"), app.sessionVerify, app.respondSuccess)
 	app.Router.On("GET", path+"/unauthorized", app.Ware("Unauthorized"))
