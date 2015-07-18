@@ -24,7 +24,10 @@ const (
 	sessionUserID = "SOME-USER-ID"
 )
 
+var sessionUserJSON = fmt.Sprintf("{\"id\": \"%s\"}", sessionUserID)
+
 type requested struct {
+	auth   string
 	body   []byte
 	method string
 	path   string
@@ -39,12 +42,16 @@ type wanted struct {
 func makeRequest(t *testing.T, app *forest.App, params *requested, want *wanted) *http.Response {
 	var request *http.Request
 	method := params.method
+	auth := params.auth
 	path := params.path
 	body := params.body
 	if body != nil {
 		request, _ = http.NewRequest(method, path, bytes.NewBuffer(body))
 	} else {
 		request, _ = http.NewRequest(method, path, nil)
+	}
+	if len(auth) > 0 {
+		request.AddCookie(&http.Cookie{Name: forest.SessionID, Value: auth})
 	}
 	response := httptest.NewRecorder()
 	app.Router.ServeHTTP(response, request)
@@ -277,6 +284,19 @@ func TestSessionGetSuccessCreateEmpty(t *testing.T) {
 	app := forest.New(debug)
 	app.RegisterRoute(root, newRouter(app))
 	params := &requested{method: method, path: path}
+	want := &wanted{code: http.StatusOK, success: true}
+	makeRequest(t, app, params, want)
+}
+
+func TestSessionGetSuccessCookie(t *testing.T) {
+	debug := true
+	method := "GET"
+	root := "/foo"
+	path := "/foo/session-get"
+	auth := sessionID
+	app := forest.New(debug)
+	app.RegisterRoute(root, newRouter(app))
+	params := &requested{auth: auth, method: method, path: path}
 	want := &wanted{code: http.StatusOK, success: true}
 	makeRequest(t, app, params, want)
 }

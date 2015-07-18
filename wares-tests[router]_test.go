@@ -41,7 +41,7 @@ func (manager *sessionManager) Marshal(ctx *bear.Context) ([]byte, error) {
 	return nil, nil
 }
 func (manager *sessionManager) Read(sessionID string) (userID string, userJSON string, err error) {
-	return "", "", nil
+	return sessionUserID, sessionUserJSON, nil
 }
 func (manager *sessionManager) Revoke(userID string) error {
 	return nil
