@@ -304,7 +304,7 @@ func TestServerError(t *testing.T) {
 }
 
 func TestSessionGetSuccessCreateEmpty(t *testing.T) {
-	debug := true
+	debug := false
 	method := "GET"
 	path := root + "/session-get"
 	app := forest.New(debug)
@@ -314,8 +314,20 @@ func TestSessionGetSuccessCreateEmpty(t *testing.T) {
 	makeRequest(t, app, params, want)
 }
 
+func TestSessionGetSuccessCreateError(t *testing.T) {
+	debug := false
+	method := "GET"
+	path := root + "/session-get/create-error"
+	auth := sessionIDExistent
+	app := forest.New(debug)
+	app.RegisterRoute(root, newRouter(app))
+	params := &requested{auth: auth, method: method, path: path}
+	want := &wanted{code: http.StatusOK, success: true}
+	makeRequest(t, app, params, want)
+}
+
 func TestSessionGetSuccessExistent(t *testing.T) {
-	debug := true
+	debug := false
 	method := "GET"
 	path := root + "/session-get"
 	auth := sessionIDExistent
@@ -327,7 +339,7 @@ func TestSessionGetSuccessExistent(t *testing.T) {
 }
 
 func TestSessionGetSuccessNonexistent(t *testing.T) {
-	debug := true
+	debug := false
 	method := "GET"
 	path := root + "/session-get"
 	auth := sessionIDNonExistent
