@@ -24,7 +24,8 @@ const (
 	customSafeErrorMessage   = "custom safe error message"
 	customUnsafeErrorMessage = "custom unsafe error message"
 	root                     = "/test"
-	sessionID                = "SOME-SESSION-ID"
+	sessionIDExistent        = "SOME-EXISTENT-SESSION-ID"
+	sessionIDNonExistent     = "SOME-NONEXISTENT-SESSION-ID"
 	sessionUserID            = "SOME-USER-ID"
 	sessionUserJSON          = "{\"id\": \"" + sessionUserID + "\"}"
 )
@@ -222,7 +223,7 @@ func TestCSRFSuccess(t *testing.T) {
 	debug := false
 	method := "GET"
 	path := root + "/csrf"
-	body := []byte(fmt.Sprintf("{\"sessionid\": \"%s\"}", sessionID))
+	body := []byte(fmt.Sprintf("{\"sessionid\": \"%s\"}", sessionIDExistent))
 	app := forest.New(debug)
 	app.RegisterRoute(root, newRouter(app))
 	params := &requested{body: body, method: method, path: path}
@@ -313,11 +314,23 @@ func TestSessionGetSuccessCreateEmpty(t *testing.T) {
 	makeRequest(t, app, params, want)
 }
 
-func TestSessionGetSuccessCookie(t *testing.T) {
+func TestSessionGetSuccessExistent(t *testing.T) {
 	debug := true
 	method := "GET"
 	path := root + "/session-get"
-	auth := sessionID
+	auth := sessionIDExistent
+	app := forest.New(debug)
+	app.RegisterRoute(root, newRouter(app))
+	params := &requested{auth: auth, method: method, path: path}
+	want := &wanted{code: http.StatusOK, success: true}
+	makeRequest(t, app, params, want)
+}
+
+func TestSessionGetSuccessNonexistent(t *testing.T) {
+	debug := true
+	method := "GET"
+	path := root + "/session-get"
+	auth := sessionIDNonExistent
 	app := forest.New(debug)
 	app.RegisterRoute(root, newRouter(app))
 	params := &requested{auth: auth, method: method, path: path}

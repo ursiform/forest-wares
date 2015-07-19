@@ -41,7 +41,11 @@ func (manager *sessionManager) Marshal(ctx *bear.Context) ([]byte, error) {
 	return nil, nil
 }
 func (manager *sessionManager) Read(sessionID string) (userID string, userJSON string, err error) {
-	return sessionUserID, sessionUserJSON, nil
+	if sessionID == sessionIDExistent {
+		return sessionUserID, sessionUserJSON, nil
+	} else {
+		return "", "", nil
+	}
 }
 func (manager *sessionManager) Revoke(userID string) error {
 	return nil
@@ -66,7 +70,7 @@ type responseFormat struct {
 type router struct{ *forest.App }
 
 func (app *router) authenticate(res http.ResponseWriter, req *http.Request, ctx *bear.Context) {
-	ctx.Set(forest.SessionID, sessionID).Set(forest.SessionUserID, sessionUserID).Next(res, req)
+	ctx.Set(forest.SessionID, sessionIDExistent).Set(forest.SessionUserID, sessionUserID).Next(res, req)
 }
 func (app *router) customSafeErrorFilterFailure(res http.ResponseWriter, req *http.Request, ctx *bear.Context) {
 	ctx.Set(forest.Error, errors.New(customUnsafeErrorMessage))
