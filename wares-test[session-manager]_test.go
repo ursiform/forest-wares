@@ -50,5 +50,8 @@ func (manager *sessionManager) Revoke(userID string) error {
 	return nil
 }
 func (manager *sessionManager) Update(sessionID string, userID string, userJSON string, duration time.Duration) error {
+	if sessionID == sessionIDWithUpdateError {
+		return errors.New("manager.Update error")
+	}
 	return nil
 }

@@ -25,8 +25,9 @@ const (
 	customUnsafeErrorMessage = "custom unsafe error message"
 	root                     = "/test"
 	sessionIDExistent        = "SOME-EXISTENT-SESSION-ID"
-	sessionIDWithDeleteError = "SOME-EXISTENT-SESSION-ID-THAT-FAILS-TO-DELETE"
 	sessionIDNonExistent     = "SOME-NONEXISTENT-SESSION-ID"
+	sessionIDWithDeleteError = "SOME-EXISTENT-SESSION-ID-THAT-FAILS-TO-DELETE"
+	sessionIDWithUpdateError = "SOME-EXISTENT-SESSION-ID-THAT-FAILS-TO-UPDATE"
 	sessionUserID            = "SOME-USER-ID"
 	sessionUserJSON          = "{\"id\": \"" + sessionUserID + "\"}"
 )
@@ -344,6 +345,18 @@ func TestSessionGetSuccessExistent(t *testing.T) {
 	method := "GET"
 	path := root + "/session-get"
 	auth := sessionIDExistent
+	app := forest.New(debug)
+	app.RegisterRoute(root, newRouter(app))
+	params := &requested{auth: auth, method: method, path: path}
+	want := &wanted{code: http.StatusOK, success: true}
+	makeRequest(t, app, params, want)
+}
+
+func TestSessionGetSuccessExistentUpdateError(t *testing.T) {
+	debug := false
+	method := "GET"
+	path := root + "/session-get"
+	auth := sessionIDWithUpdateError
 	app := forest.New(debug)
 	app.RegisterRoute(root, newRouter(app))
 	params := &requested{auth: auth, method: method, path: path}
