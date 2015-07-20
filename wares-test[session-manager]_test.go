@@ -41,6 +41,12 @@ func (manager *sessionManager) Marshal(ctx *bear.Context) ([]byte, error) {
 	if sessionID == sessionIDWithMarshalError {
 		return nil, errors.New("manager.Marshal error")
 	}
+	if sessionID == sessionIDWithSelfDestruct {
+		ctx.Set(forest.SessionID, nil)
+	}
+	if sessionID == sessionIDWithUserDestruct {
+		ctx.Set(forest.SessionUserID, nil)
+	}
 	return []byte(sessionUserJSON), nil
 }
 func (manager *sessionManager) Read(sessionID string) (userID string, userJSON string, err error) {

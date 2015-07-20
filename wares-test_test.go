@@ -28,6 +28,8 @@ const (
 	sessionIDNonExistent      = "SOME-NONEXISTENT-SESSION-ID"
 	sessionIDWithDeleteError  = "SOME-EXISTENT-SESSION-ID-THAT-FAILS-TO-DELETE"
 	sessionIDWithMarshalError = "SOME-EXISTENT-SESSION-ID-THAT-FAILS-TO-MARSHAL"
+	sessionIDWithUserDestruct = "SOME-EXISTENT-SESSION-ID-THAT-USER-DESTRUCTS"
+	sessionIDWithSelfDestruct = "SOME-EXISTENT-SESSION-ID-THAT-SELF-DESTRUCTS"
 	sessionIDWithUpdateError  = "SOME-EXISTENT-SESSION-ID-THAT-FAILS-TO-UPDATE"
 	sessionUserID             = "SOME-USER-ID"
 	sessionUserJSON           = "{\"id\": \"" + sessionUserID + "\"}"
@@ -386,6 +388,30 @@ func TestSessionGetSuccessNonexistent(t *testing.T) {
 	app.RegisterRoute(root, newRouter(app))
 	params := &requested{auth: auth, method: method, path: path}
 	want := &wanted{code: http.StatusOK, success: true}
+	makeRequest(t, app, params, want)
+}
+
+func TestSessionSetBadSessionIDError(t *testing.T) {
+	debug := false
+	method := "GET"
+	path := root + "/session-set"
+	auth := sessionIDWithSelfDestruct
+	app := forest.New(debug)
+	app.RegisterRoute(root, newRouter(app))
+	params := &requested{auth: auth, method: method, path: path}
+	want := &wanted{code: http.StatusInternalServerError, success: false}
+	makeRequest(t, app, params, want)
+}
+
+func TestSessionSetBadUserIDError(t *testing.T) {
+	debug := false
+	method := "GET"
+	path := root + "/session-set"
+	auth := sessionIDWithUserDestruct
+	app := forest.New(debug)
+	app.RegisterRoute(root, newRouter(app))
+	params := &requested{auth: auth, method: method, path: path}
+	want := &wanted{code: http.StatusInternalServerError, success: false}
 	makeRequest(t, app, params, want)
 }
 
