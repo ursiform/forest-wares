@@ -31,16 +31,19 @@ func (manager *sessionManager) CreateEmpty(sessionID string, ctx *bear.Context) 
 	ctx.Set(forest.SessionID, sessionID)
 }
 func (manager *sessionManager) Delete(sessionID string, userID string) error {
+	if sessionID == sessionIDWithDeleteError {
+		return errors.New("manager.Delete error")
+	}
 	return nil
 }
 func (manager *sessionManager) Marshal(ctx *bear.Context) ([]byte, error) {
 	return nil, nil
 }
 func (manager *sessionManager) Read(sessionID string) (userID string, userJSON string, err error) {
-	if sessionID == sessionIDExistent {
-		return sessionUserID, sessionUserJSON, nil
-	} else {
+	if sessionID == sessionIDNonExistent {
 		return "", "", nil
+	} else {
+		return sessionUserID, sessionUserJSON, nil
 	}
 }
 func (manager *sessionManager) Revoke(userID string) error {
