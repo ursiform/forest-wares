@@ -19,26 +19,38 @@ func InstallBodyParser(app *forest.App) {
 }
 
 func InstallErrorWares(app *forest.App) {
-	app.InstallWare("BadRequest", ErrorsBadRequest(app), forest.WareInstalled)
-	app.InstallWare("Conflict", ErrorsConflict(app), forest.WareInstalled)
-	app.InstallWare("MethodNotAllowed", ErrorsMethodNotAllowed(app), forest.WareInstalled)
-	app.InstallWare("NotFound", ErrorsNotFound(app), forest.WareInstalled)
-	app.InstallWare("ServerError", ErrorsServerError(app), forest.WareInstalled)
-	app.InstallWare("Unauthorized", ErrorsUnauthorized(app), forest.WareInstalled)
+	app.InstallWare("BadRequest",
+		ErrorsBadRequest(app), forest.WareInstalled)
+	app.InstallWare("Conflict",
+		ErrorsConflict(app), forest.WareInstalled)
+	app.InstallWare("MethodNotAllowed",
+		ErrorsMethodNotAllowed(app), forest.WareInstalled)
+	app.InstallWare("NotFound",
+		ErrorsNotFound(app), forest.WareInstalled)
+	app.InstallWare("ServerError",
+		ErrorsServerError(app), forest.WareInstalled)
+	app.InstallWare("Unauthorized",
+		ErrorsUnauthorized(app), forest.WareInstalled)
 }
 
 func InstallSecurityWares(app *forest.App) {
-	app.InstallWare("Authenticate", Authenticate(app), forest.WareInstalled)
-	app.InstallWare("CSRF", CSRF(app), forest.WareInstalled)
+	app.InstallWare("Authenticate",
+		Authenticate(app), forest.WareInstalled)
+	app.InstallWare("CSRF",
+		CSRF(app), forest.WareInstalled)
 }
 
 func InstallSessionWares(app *forest.App, manager SessionManager) {
-	app.InstallWare("SessionDel", SessionDel(app, manager), forest.WareInstalled)
-	app.InstallWare("SessionGet", SessionGet(app, manager), forest.WareInstalled)
-	app.InstallWare("SessionSet", SessionSet(app, manager), forest.WareInstalled)
+	app.InstallWare("SessionDel",
+		SessionDel(app, manager), forest.WareInstalled)
+	app.InstallWare("SessionGet",
+		SessionGet(app, manager), forest.WareInstalled)
+	app.InstallWare("SessionSet",
+		SessionSet(app, manager), forest.WareInstalled)
 }
 
-func safeErrorMessage(app *forest.App, ctx *bear.Context, friendly string) string {
+func safeErrorMessage(app *forest.App, ctx *bear.Context,
+	friendly string) string {
 	if err, ok := ctx.Get(forest.SafeError).(error); ok && err != nil {
 		return err.Error()
 	} else if err, ok := ctx.Get(forest.Error).(error); ok && err != nil {

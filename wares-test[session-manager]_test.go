@@ -14,7 +14,8 @@ import (
 // implements SessionManager
 type sessionManager struct{}
 
-func (manager *sessionManager) Create(sessionID string, userID string, userJSON string, ctx *bear.Context) error {
+func (manager *sessionManager) Create(sessionID string, userID string,
+	userJSON string, ctx *bear.Context) error {
 	testError, ok := ctx.Get("testerror").(bool)
 	if !ok {
 		testError = false
@@ -27,7 +28,8 @@ func (manager *sessionManager) Create(sessionID string, userID string, userJSON 
 		return nil
 	}
 }
-func (manager *sessionManager) CreateEmpty(sessionID string, ctx *bear.Context) {
+func (manager *sessionManager) CreateEmpty(sessionID string,
+	ctx *bear.Context) {
 	ctx.Set(forest.SessionID, sessionID)
 }
 func (manager *sessionManager) Delete(sessionID string, userID string) error {
@@ -49,7 +51,8 @@ func (manager *sessionManager) Marshal(ctx *bear.Context) ([]byte, error) {
 	}
 	return []byte(sessionUserJSON), nil
 }
-func (manager *sessionManager) Read(sessionID string) (userID string, userJSON string, err error) {
+func (manager *sessionManager) Read(sessionID string) (userID string,
+	userJSON string, err error) {
 	if sessionID == sessionIDNonExistent {
 		return "", "", nil
 	} else {
@@ -59,7 +62,8 @@ func (manager *sessionManager) Read(sessionID string) (userID string, userJSON s
 func (manager *sessionManager) Revoke(userID string) error {
 	return nil
 }
-func (manager *sessionManager) Update(sessionID string, userID string, userJSON string, duration time.Duration) error {
+func (manager *sessionManager) Update(sessionID string, userID string,
+	userJSON string, duration time.Duration) error {
 	if sessionID == sessionIDWithUpdateError {
 		return errors.New("manager.Update error")
 	}

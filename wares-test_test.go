@@ -48,7 +48,8 @@ type wanted struct {
 	data    interface{}
 }
 
-func makeRequest(t *testing.T, app *forest.App, params *requested, want *wanted) (*http.Response, *forest.Response) {
+func makeRequest(t *testing.T, app *forest.App,
+	params *requested, want *wanted) (*http.Response, *forest.Response) {
 	var request *http.Request
 	method := params.method
 	auth := params.auth
@@ -71,12 +72,14 @@ func makeRequest(t *testing.T, app *forest.App, params *requested, want *wanted)
 		return nil, responseData
 	}
 	if err := json.Unmarshal(responseBody, responseData); err != nil {
-		t.Errorf("unmarshal error: %v when attempting to read: %s", err, string(responseBody))
+		t.Errorf("unmarshal error: %v when attempting to read: %s",
+			err, string(responseBody))
 		return nil, responseData
 	}
 	if response.Code != want.code {
 		t.Errorf("%s %s want: %d (%s) got: %d %s, body: %s", method, path,
-			want.code, http.StatusText(want.code), response.Code, http.StatusText(response.Code), string(responseBody))
+			want.code, http.StatusText(want.code), response.Code,
+			http.StatusText(response.Code), string(responseBody))
 		return nil, responseData
 	}
 	if responseData.Success != want.success {
@@ -276,7 +279,8 @@ func TestSafeErrorFilter(t *testing.T) {
 	want := &wanted{code: http.StatusInternalServerError, success: false}
 	_, forestResponse := makeRequest(t, app, params, want)
 	if forestResponse.Message != customSafeErrorMessage {
-		t.Errorf("%s %s should return message: %s", method, path, customSafeErrorMessage)
+		t.Errorf("%s %s should return message: %s",
+			method, path, customSafeErrorMessage)
 	}
 	// test unsafe errors not passing through custom filter
 	path = root + "/safe-error/failure"
@@ -284,7 +288,8 @@ func TestSafeErrorFilter(t *testing.T) {
 	want = &wanted{code: http.StatusInternalServerError, success: false}
 	_, forestResponse = makeRequest(t, app, params, want)
 	if forestResponse.Message == customUnsafeErrorMessage {
-		t.Errorf("%s %s should NOT return unsafe message: %s", method, path, customUnsafeErrorMessage)
+		t.Errorf("%s %s should NOT return unsafe message: %s",
+			method, path, customUnsafeErrorMessage)
 	}
 	// test unsafe errors passing through if app.Debug is true
 	app.Debug = true
@@ -293,7 +298,8 @@ func TestSafeErrorFilter(t *testing.T) {
 	want = &wanted{code: http.StatusInternalServerError, success: false}
 	_, forestResponse = makeRequest(t, app, params, want)
 	if forestResponse.Message != customUnsafeErrorMessage {
-		t.Errorf("%s %s should return unsafe message if app.Debug is true: %s", method, path, customUnsafeErrorMessage)
+		t.Errorf("%s %s should return unsafe message if app.Debug is true: %s",
+			method, path, customUnsafeErrorMessage)
 	}
 }
 

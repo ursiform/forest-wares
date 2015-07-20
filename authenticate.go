@@ -11,12 +11,15 @@ import (
 )
 
 func Authenticate(app *forest.App) bear.HandlerFunc {
-	return bear.HandlerFunc(func(res http.ResponseWriter, req *http.Request, ctx *bear.Context) {
+	authenticate := func(res http.ResponseWriter, req *http.Request,
+		ctx *bear.Context) {
 		userID, ok := ctx.Get(forest.SessionUserID).(string)
 		if !ok || len(userID) == 0 {
-			app.Response(res, http.StatusUnauthorized, forest.Failure, app.Error("Unauthorized")).Write(nil)
+			app.Response(res, http.StatusUnauthorized, forest.Failure,
+				app.Error("Unauthorized")).Write(nil)
 			return
 		}
 		ctx.Next(res, req)
-	})
+	}
+	return bear.HandlerFunc(authenticate)
 }

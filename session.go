@@ -13,43 +13,53 @@ import (
 )
 
 func SessionDel(app *forest.App, manager SessionManager) bear.HandlerFunc {
-	return bear.HandlerFunc(func(res http.ResponseWriter, req *http.Request, ctx *bear.Context) {
+	sessionDel := func(res http.ResponseWriter, req *http.Request,
+		ctx *bear.Context) {
 		sessionID, ok := ctx.Get(forest.SessionID).(string)
 		if !ok {
-			ctx.Set(forest.Error, fmt.Errorf("SessionDel %s: %v", forest.SessionID, ctx.Get(forest.SessionID)))
+			err := fmt.Errorf("SessionDel %s: %v",
+				forest.SessionID, ctx.Get(forest.SessionID))
+			ctx.Set(forest.Error, err)
 			message := safeErrorMessage(app, ctx, app.Error("Generic"))
-			app.Response(res, http.StatusInternalServerError, forest.Failure, message).Write(nil)
+			app.Response(res, http.StatusInternalServerError,
+				forest.Failure, message).Write(nil)
 			return
 		}
 		userID, ok := ctx.Get(forest.SessionUserID).(string)
 		if !ok {
-			ctx.Set(forest.Error, fmt.Errorf("SessionDel %s: %v",
-				forest.SessionUserID, ctx.Get(forest.SessionUserID)))
+			err := fmt.Errorf("SessionDel %s: %v",
+				forest.SessionUserID, ctx.Get(forest.SessionUserID))
+			ctx.Set(forest.Error, err)
 			message := safeErrorMessage(app, ctx, app.Error("Generic"))
-			app.Response(res, http.StatusInternalServerError, forest.Failure, message).Write(nil)
+			app.Response(res, http.StatusInternalServerError,
+				forest.Failure, message).Write(nil)
 			return
 		}
 		if err := manager.Delete(sessionID, userID); err != nil {
 			ctx.Set(forest.Error, err)
 			message := safeErrorMessage(app, ctx, app.Error("Generic"))
-			app.Response(res, http.StatusInternalServerError, forest.Failure, message).Write(nil)
+			app.Response(res, http.StatusInternalServerError,
+				forest.Failure, message).Write(nil)
 			return
 		}
 		ctx.Next(res, req)
-	})
+	}
+	return bear.HandlerFunc(sessionDel)
 }
 
 func SessionGet(app *forest.App, manager SessionManager) bear.HandlerFunc {
-	return bear.HandlerFunc(func(res http.ResponseWriter, req *http.Request, ctx *bear.Context) {
+	sessionGet := func(res http.ResponseWriter, req *http.Request,
+		ctx *bear.Context) {
 		cookieName := forest.SessionID
 		createEmptySession := func(sessionID string) {
-			cookiePath := app.CookiePath
-			if cookiePath == "" {
-				cookiePath = "/"
+			path := app.CookiePath
+			if path == "" {
+				path = "/"
 			}
 			cookieValue := sessionID
-			cookieDuration := app.Duration("Cookie")
-			app.SetCookie(res, cookiePath, cookieName, cookieValue, cookieDuration) // reset the cookie
+			duration := app.Duration("Cookie")
+			// Reset the cookie.
+			app.SetCookie(res, path, cookieName, cookieValue, duration)
 			manager.CreateEmpty(sessionID, ctx)
 			ctx.Next(res, req)
 		}
@@ -74,56 +84,72 @@ func SessionGet(app *forest.App, manager SessionManager) bear.HandlerFunc {
 			createEmptySession(sessionID)
 			return
 		}
-		// if SessionRefresh is set to false, the session will not refresh,
-		// otherwise, if it is not set or if it is set to true, the session is refreshed
-		if refresh, ok := ctx.Get(forest.SessionRefresh).(bool); !ok || refresh {
-			cookiePath := app.CookiePath
-			if cookiePath == "" {
-				cookiePath = "/"
+		// If SessionRefresh is set to false, the session will not refresh;
+		// if it's not set or if it's set to true, the session is refreshed.
+		refresh, ok := ctx.Get(forest.SessionRefresh).(bool)
+		if !ok || refresh {
+			path := app.CookiePath
+			if path == "" {
+				path = "/"
 			}
 			cookieName := forest.SessionID
 			cookieValue := sessionID
-			cookieDuration := app.Duration("Cookie")
-			app.SetCookie(res, cookiePath, cookieName, cookieValue, cookieDuration) // refreshes the cookie
+			duration := app.Duration("Cookie")
+			// Refresh the cookie.
+			app.SetCookie(res, path, cookieName, cookieValue, duration)
 			defer func(sessionID string, userJSON string) {
-				if err := manager.Update(sessionID, userID, userJSON, app.Duration("Session")); err != nil {
+				err := manager.Update(sessionID, userID, userJSON,
+					app.Duration("Session"))
+				if err != nil {
 					println(fmt.Sprintf("error updating session: %s", err))
 				}
 			}(sessionID, userJSON)
 		}
 		ctx.Next(res, req)
-	})
+	}
+	return bear.HandlerFunc(sessionGet)
 }
 
 func SessionSet(app *forest.App, manager SessionManager) bear.HandlerFunc {
-	return bear.HandlerFunc(func(res http.ResponseWriter, req *http.Request, ctx *bear.Context) {
+	sessionSet := func(res http.ResponseWriter, req *http.Request,
+		ctx *bear.Context) {
 		userJSON, err := manager.Marshal(ctx)
 		if err != nil {
 			ctx.Set(forest.Error, err)
 			message := safeErrorMessage(app, ctx, app.Error("Generic"))
-			app.Response(res, http.StatusInternalServerError, forest.Failure, message).Write(nil)
+			app.Response(res, http.StatusInternalServerError,
+				forest.Failure, message).Write(nil)
 			return
 		}
 		sessionID, ok := ctx.Get(forest.SessionID).(string)
 		if !ok {
-			ctx.Set(forest.Error, fmt.Errorf("%s: %v", forest.SessionID, ctx.Get(forest.SessionID)))
+			err := fmt.Errorf("%s: %v",
+				forest.SessionID, ctx.Get(forest.SessionID))
+			ctx.Set(forest.Error, err)
 			message := safeErrorMessage(app, ctx, app.Error("Generic"))
-			app.Response(res, http.StatusInternalServerError, forest.Failure, message).Write(nil)
+			app.Response(res, http.StatusInternalServerError,
+				forest.Failure, message).Write(nil)
 			return
 		}
 		userID, ok := ctx.Get(forest.SessionUserID).(string)
 		if !ok {
-			ctx.Set(forest.Error, fmt.Errorf("%s: %v", forest.SessionUserID, ctx.Get(forest.SessionUserID)))
-			message := safeErrorMessage(app, ctx, app.Error("Generic"))
-			app.Response(res, http.StatusInternalServerError, forest.Failure, message).Write(nil)
-			return
-		}
-		if err := manager.Update(sessionID, userID, string(userJSON), app.Duration("Session")); err != nil {
+			err := fmt.Errorf("%s: %v",
+				forest.SessionUserID, ctx.Get(forest.SessionUserID))
 			ctx.Set(forest.Error, err)
 			message := safeErrorMessage(app, ctx, app.Error("Generic"))
-			app.Response(res, http.StatusInternalServerError, forest.Failure, message).Write(nil)
+			app.Response(res, http.StatusInternalServerError,
+				forest.Failure, message).Write(nil)
+			return
+		}
+		if err := manager.Update(sessionID, userID,
+			string(userJSON), app.Duration("Session")); err != nil {
+			ctx.Set(forest.Error, err)
+			message := safeErrorMessage(app, ctx, app.Error("Generic"))
+			app.Response(res, http.StatusInternalServerError,
+				forest.Failure, message).Write(nil)
 			return
 		}
 		ctx.Next(res, req)
-	})
+	}
+	return bear.HandlerFunc(sessionSet)
 }
