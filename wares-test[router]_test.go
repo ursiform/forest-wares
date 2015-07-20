@@ -72,9 +72,11 @@ func (app *router) Route(path string) {
 	app.Router.On("GET", path+"/safe-error/failure", app.customSafeErrorFilterFailure)
 	app.Router.On("GET", path+"/safe-error/success", app.customSafeErrorFilterSuccess)
 	app.Router.On("GET", path+"/server-error", app.Ware("ServerError"))
+	app.Router.On("GET", path+"/session-del", app.Ware("SessionGet"), app.Ware("SessionDel"), app.respondSuccess)
 	app.Router.On("GET", path+"/session-get", app.Ware("SessionGet"), app.sessionVerify, app.respondSuccess)
 	app.Router.On("GET", path+"/session-get/create-error",
 		app.sessionCreateError, app.Ware("SessionGet"), app.sessionVerify, app.respondSuccess)
+	app.Router.On("GET", path+"/session-set", app.Ware("SessionGet"), app.Ware("SessionSet"), app.respondSuccess)
 	app.Router.On("GET", path+"/unauthorized", app.Ware("Unauthorized"))
 	app.Router.On("POST", path+"/body-parser/failure/no-init", app.Ware("BodyParser"), app.respondSuccess)
 	app.Router.On("POST", path+"/body-parser/success", app.initPostParse, app.Ware("BodyParser"), app.respondSuccess)

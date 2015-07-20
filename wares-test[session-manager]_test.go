@@ -37,7 +37,11 @@ func (manager *sessionManager) Delete(sessionID string, userID string) error {
 	return nil
 }
 func (manager *sessionManager) Marshal(ctx *bear.Context) ([]byte, error) {
-	return nil, nil
+	sessionID := ctx.Get(forest.SessionID).(string)
+	if sessionID == sessionIDWithMarshalError {
+		return nil, errors.New("manager.Marshal error")
+	}
+	return []byte(sessionUserJSON), nil
 }
 func (manager *sessionManager) Read(sessionID string) (userID string, userJSON string, err error) {
 	if sessionID == sessionIDNonExistent {

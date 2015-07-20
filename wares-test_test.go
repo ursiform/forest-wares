@@ -20,16 +20,17 @@ import (
 )
 
 const (
-	arbitraryJSON            = "{\"foo\": \"bar\"}"
-	customSafeErrorMessage   = "custom safe error message"
-	customUnsafeErrorMessage = "custom unsafe error message"
-	root                     = "/test"
-	sessionIDExistent        = "SOME-EXISTENT-SESSION-ID"
-	sessionIDNonExistent     = "SOME-NONEXISTENT-SESSION-ID"
-	sessionIDWithDeleteError = "SOME-EXISTENT-SESSION-ID-THAT-FAILS-TO-DELETE"
-	sessionIDWithUpdateError = "SOME-EXISTENT-SESSION-ID-THAT-FAILS-TO-UPDATE"
-	sessionUserID            = "SOME-USER-ID"
-	sessionUserJSON          = "{\"id\": \"" + sessionUserID + "\"}"
+	arbitraryJSON             = "{\"foo\": \"bar\"}"
+	customSafeErrorMessage    = "custom safe error message"
+	customUnsafeErrorMessage  = "custom unsafe error message"
+	root                      = "/test"
+	sessionIDExistent         = "SOME-EXISTENT-SESSION-ID"
+	sessionIDNonExistent      = "SOME-NONEXISTENT-SESSION-ID"
+	sessionIDWithDeleteError  = "SOME-EXISTENT-SESSION-ID-THAT-FAILS-TO-DELETE"
+	sessionIDWithMarshalError = "SOME-EXISTENT-SESSION-ID-THAT-FAILS-TO-MARSHAL"
+	sessionIDWithUpdateError  = "SOME-EXISTENT-SESSION-ID-THAT-FAILS-TO-UPDATE"
+	sessionUserID             = "SOME-USER-ID"
+	sessionUserJSON           = "{\"id\": \"" + sessionUserID + "\"}"
 )
 
 type requested struct {
@@ -305,6 +306,18 @@ func TestServerError(t *testing.T) {
 	makeRequest(t, app, params, want)
 }
 
+func TestSessionDelSuccess(t *testing.T) {
+	debug := false
+	method := "GET"
+	path := root + "/session-del"
+	auth := sessionIDExistent
+	app := forest.New(debug)
+	app.RegisterRoute(root, newRouter(app))
+	params := &requested{auth: auth, method: method, path: path}
+	want := &wanted{code: http.StatusOK, success: true}
+	makeRequest(t, app, params, want)
+}
+
 func TestSessionGetSuccessCreateEmpty(t *testing.T) {
 	debug := false
 	method := "GET"
@@ -369,6 +382,30 @@ func TestSessionGetSuccessNonexistent(t *testing.T) {
 	method := "GET"
 	path := root + "/session-get"
 	auth := sessionIDNonExistent
+	app := forest.New(debug)
+	app.RegisterRoute(root, newRouter(app))
+	params := &requested{auth: auth, method: method, path: path}
+	want := &wanted{code: http.StatusOK, success: true}
+	makeRequest(t, app, params, want)
+}
+
+func TestSessionSetMarshalError(t *testing.T) {
+	debug := false
+	method := "GET"
+	path := root + "/session-set"
+	auth := sessionIDWithMarshalError
+	app := forest.New(debug)
+	app.RegisterRoute(root, newRouter(app))
+	params := &requested{auth: auth, method: method, path: path}
+	want := &wanted{code: http.StatusInternalServerError, success: false}
+	makeRequest(t, app, params, want)
+}
+
+func TestSessionSetSuccess(t *testing.T) {
+	debug := false
+	method := "GET"
+	path := root + "/session-set"
+	auth := sessionIDExistent
 	app := forest.New(debug)
 	app.RegisterRoute(root, newRouter(app))
 	params := &requested{auth: auth, method: method, path: path}
