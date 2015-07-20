@@ -413,6 +413,18 @@ func TestSessionSetSuccess(t *testing.T) {
 	makeRequest(t, app, params, want)
 }
 
+func TestSessionSetUpdateError(t *testing.T) {
+	debug := false
+	method := "GET"
+	path := root + "/session-set"
+	auth := sessionIDWithUpdateError
+	app := forest.New(debug)
+	app.RegisterRoute(root, newRouter(app))
+	params := &requested{auth: auth, method: method, path: path}
+	want := &wanted{code: http.StatusInternalServerError, success: false}
+	makeRequest(t, app, params, want)
+}
+
 func TestUnauthorized(t *testing.T) {
 	debug := false
 	method := "GET"
