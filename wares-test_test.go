@@ -308,6 +308,42 @@ func TestServerError(t *testing.T) {
 	makeRequest(t, app, params, want)
 }
 
+func TestSessionSetDelBadUserIDError(t *testing.T) {
+	debug := false
+	method := "GET"
+	path := root + "/session-del"
+	auth := sessionIDWithUserDestruct
+	app := forest.New(debug)
+	app.RegisterRoute(root, newRouter(app))
+	params := &requested{auth: auth, method: method, path: path}
+	want := &wanted{code: http.StatusInternalServerError, success: false}
+	makeRequest(t, app, params, want)
+}
+
+func TestSessionSetDelBadSessionIDError(t *testing.T) {
+	debug := false
+	method := "GET"
+	path := root + "/session-del"
+	auth := sessionIDWithSelfDestruct
+	app := forest.New(debug)
+	app.RegisterRoute(root, newRouter(app))
+	params := &requested{auth: auth, method: method, path: path}
+	want := &wanted{code: http.StatusInternalServerError, success: false}
+	makeRequest(t, app, params, want)
+}
+
+func TestSessionDelFailure(t *testing.T) {
+	debug := false
+	method := "GET"
+	path := root + "/session-del"
+	auth := sessionIDWithDeleteError
+	app := forest.New(debug)
+	app.RegisterRoute(root, newRouter(app))
+	params := &requested{auth: auth, method: method, path: path}
+	want := &wanted{code: http.StatusInternalServerError, success: false}
+	makeRequest(t, app, params, want)
+}
+
 func TestSessionDelSuccess(t *testing.T) {
 	debug := false
 	method := "GET"

@@ -50,6 +50,16 @@ func (app *router) respondSuccess(res http.ResponseWriter, req *http.Request, ct
 func (app *router) sessionCreateError(res http.ResponseWriter, req *http.Request, ctx *bear.Context) {
 	ctx.Set("testerror", true).Next(res, req)
 }
+func (app *router) sessionDelIntercept(res http.ResponseWriter, req *http.Request, ctx *bear.Context) {
+	sessionID := ctx.Get(forest.SessionID).(string)
+	if sessionID == sessionIDWithSelfDestruct {
+		ctx.Set(forest.SessionID, nil)
+	}
+	if sessionID == sessionIDWithUserDestruct {
+		ctx.Set(forest.SessionUserID, nil)
+	}
+	ctx.Next(res, req)
+}
 func (app *router) sessionVerify(res http.ResponseWriter, req *http.Request, ctx *bear.Context) {
 	_, ok := ctx.Get(forest.SessionID).(string)
 	if !ok {
@@ -72,7 +82,8 @@ func (app *router) Route(path string) {
 	app.Router.On("GET", path+"/safe-error/failure", app.customSafeErrorFilterFailure)
 	app.Router.On("GET", path+"/safe-error/success", app.customSafeErrorFilterSuccess)
 	app.Router.On("GET", path+"/server-error", app.Ware("ServerError"))
-	app.Router.On("GET", path+"/session-del", app.Ware("SessionGet"), app.Ware("SessionDel"), app.respondSuccess)
+	app.Router.On("GET", path+"/session-del", app.Ware("SessionGet"),
+		app.sessionDelIntercept, app.Ware("SessionDel"), app.respondSuccess)
 	app.Router.On("GET", path+"/session-get", app.Ware("SessionGet"), app.sessionVerify, app.respondSuccess)
 	app.Router.On("GET", path+"/session-get/create-error",
 		app.sessionCreateError, app.Ware("SessionGet"), app.sessionVerify, app.respondSuccess)
