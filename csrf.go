@@ -13,11 +13,10 @@ import (
 	"net/http"
 )
 
-type csrfPostBody struct {
-	SessionID string `json:"sessionid"` // forest.SessionID == "sessionid"
-}
-
 func CSRF(app *forest.App) bear.HandlerFunc {
+	type postBody struct {
+		SessionID string `json:"sessionid"` // forest.SessionID == "sessionid"
+	}
 	csrf := func(
 		_ http.ResponseWriter, _ *http.Request, ctx *bear.Context) {
 		if ctx.Request.Body == nil {
@@ -25,7 +24,7 @@ func CSRF(app *forest.App) bear.HandlerFunc {
 				forest.Failure, app.Error("CSRF")).Write(nil)
 			return
 		}
-		pb := new(csrfPostBody)
+		pb := new(postBody)
 		body, _ := ioutil.ReadAll(ctx.Request.Body)
 		if body == nil || len(body) < 2 { // smallest JSON body is {}, 2 chars
 			message := app.Error("Parse")
