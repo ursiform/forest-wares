@@ -39,7 +39,7 @@ func BodyParser(app *forest.App) bear.HandlerFunc {
 				forest.Failure, message).Write(nil)
 			return
 		}
-		ctx.Next(res, req)
+		ctx.Next()
 	}
 	return bear.HandlerFunc(bodyParser)
 }

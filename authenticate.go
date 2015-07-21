@@ -19,7 +19,7 @@ func Authenticate(app *forest.App) bear.HandlerFunc {
 				app.Error("Unauthorized")).Write(nil)
 			return
 		}
-		ctx.Next(res, req)
+		ctx.Next()
 	}
 	return bear.HandlerFunc(authenticate)
 }

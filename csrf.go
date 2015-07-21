@@ -46,7 +46,7 @@ func CSRF(app *forest.App) bear.HandlerFunc {
 			app.Response(res, http.StatusBadRequest,
 				forest.Failure, app.Error("CSRF")).Write(nil)
 		} else {
-			ctx.Next(res, req)
+			ctx.Next()
 		}
 	}
 	return bear.HandlerFunc(csrf)

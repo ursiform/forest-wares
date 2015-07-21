@@ -42,7 +42,7 @@ func SessionDel(app *forest.App, manager SessionManager) bear.HandlerFunc {
 				forest.Failure, message).Write(nil)
 			return
 		}
-		ctx.Next(res, req)
+		ctx.Next()
 	}
 	return bear.HandlerFunc(sessionDel)
 }
@@ -61,7 +61,7 @@ func SessionGet(app *forest.App, manager SessionManager) bear.HandlerFunc {
 			// Reset the cookie.
 			app.SetCookie(res, path, cookieName, cookieValue, duration)
 			manager.CreateEmpty(sessionID, ctx)
-			ctx.Next(res, req)
+			ctx.Next()
 		}
 		cookie, err := req.Cookie(cookieName)
 		if err != nil || cookie.Value == "" {
@@ -105,7 +105,7 @@ func SessionGet(app *forest.App, manager SessionManager) bear.HandlerFunc {
 				}
 			}(sessionID, userJSON)
 		}
-		ctx.Next(res, req)
+		ctx.Next()
 	}
 	return bear.HandlerFunc(sessionGet)
 }
@@ -149,7 +149,7 @@ func SessionSet(app *forest.App, manager SessionManager) bear.HandlerFunc {
 				forest.Failure, message).Write(nil)
 			return
 		}
-		ctx.Next(res, req)
+		ctx.Next()
 	}
 	return bear.HandlerFunc(sessionSet)
 }

@@ -33,7 +33,7 @@ func (app *router) authenticate(res http.ResponseWriter, req *http.Request,
 	ctx *bear.Context) {
 	ctx.Set(forest.SessionID, sessionIDExistent)
 	ctx.Set(forest.SessionUserID, sessionUserID)
-	ctx.Next(res, req)
+	ctx.Next()
 }
 func (app *router) customSafeErrorFilterFailure(res http.ResponseWriter,
 	req *http.Request, ctx *bear.Context) {
@@ -47,7 +47,7 @@ func (app *router) customSafeErrorFilterSuccess(res http.ResponseWriter,
 }
 func (app *router) initPostParse(res http.ResponseWriter, req *http.Request,
 	ctx *bear.Context) {
-	ctx.Set(forest.Body, new(postBody)).Next(res, req)
+	ctx.Set(forest.Body, new(postBody)).Next()
 }
 func (app *router) respondSuccess(res http.ResponseWriter, req *http.Request,
 	ctx *bear.Context) {
@@ -56,7 +56,7 @@ func (app *router) respondSuccess(res http.ResponseWriter, req *http.Request,
 }
 func (app *router) sessionCreateError(res http.ResponseWriter,
 	req *http.Request, ctx *bear.Context) {
-	ctx.Set("testerror", true).Next(res, req)
+	ctx.Set("testerror", true).Next()
 }
 func (app *router) sessionDelIntercept(res http.ResponseWriter,
 	req *http.Request, ctx *bear.Context) {
@@ -67,7 +67,7 @@ func (app *router) sessionDelIntercept(res http.ResponseWriter,
 	if sessionID == sessionIDWithUserDestruct {
 		ctx.Set(forest.SessionUserID, nil)
 	}
-	ctx.Next(res, req)
+	ctx.Next()
 }
 func (app *router) sessionVerify(res http.ResponseWriter, req *http.Request,
 	ctx *bear.Context) {
@@ -77,7 +77,7 @@ func (app *router) sessionVerify(res http.ResponseWriter, req *http.Request,
 		app.Ware("ServerError")(res, req, ctx)
 		return
 	} else {
-		ctx.Next(res, req)
+		ctx.Next()
 	}
 }
 
