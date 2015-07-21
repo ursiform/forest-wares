@@ -29,37 +29,38 @@ type responseFormat struct {
 
 type router struct{ *forest.App }
 
-func (app *router) authenticate(res http.ResponseWriter, req *http.Request,
-	ctx *bear.Context) {
+func (app *router) authenticate(
+	_ http.ResponseWriter, _ *http.Request, ctx *bear.Context) {
 	ctx.Set(forest.SessionID, sessionIDExistent)
 	ctx.Set(forest.SessionUserID, sessionUserID)
 	ctx.Next()
 }
-func (app *router) customSafeErrorFilterFailure(res http.ResponseWriter,
-	req *http.Request, ctx *bear.Context) {
+func (app *router) customSafeErrorFilterFailure(
+	_ http.ResponseWriter, _ *http.Request, ctx *bear.Context) {
 	ctx.Set(forest.Error, errors.New(customUnsafeErrorMessage))
-	app.Ware("ServerError")(res, req, ctx)
+	app.Ware("ServerError")(ctx.ResponseWriter, ctx.Request, ctx)
 }
-func (app *router) customSafeErrorFilterSuccess(res http.ResponseWriter,
-	req *http.Request, ctx *bear.Context) {
+func (app *router) customSafeErrorFilterSuccess(
+	_ http.ResponseWriter, _ *http.Request, ctx *bear.Context) {
 	ctx.Set(forest.Error, errors.New(customSafeErrorMessage))
-	app.Ware("ServerError")(res, req, ctx)
+	app.Ware("ServerError")(ctx.ResponseWriter, ctx.Request, ctx)
 }
-func (app *router) initPostParse(res http.ResponseWriter, req *http.Request,
-	ctx *bear.Context) {
+func (app *router) initPostParse(
+	_ http.ResponseWriter, _ *http.Request, ctx *bear.Context) {
 	ctx.Set(forest.Body, new(postBody)).Next()
 }
-func (app *router) respondSuccess(res http.ResponseWriter, req *http.Request,
-	ctx *bear.Context) {
+func (app *router) respondSuccess(
+	_ http.ResponseWriter, _ *http.Request, ctx *bear.Context) {
 	data := &responseFormat{Foo: "foo"}
-	app.Response(res, http.StatusOK, forest.Success, forest.NoMessage).Write(data)
+	app.Response(
+		ctx, http.StatusOK, forest.Success, forest.NoMessage).Write(data)
 }
-func (app *router) sessionCreateError(res http.ResponseWriter,
-	req *http.Request, ctx *bear.Context) {
+func (app *router) sessionCreateError(
+	_ http.ResponseWriter, _ *http.Request, ctx *bear.Context) {
 	ctx.Set("testerror", true).Next()
 }
-func (app *router) sessionDelIntercept(res http.ResponseWriter,
-	req *http.Request, ctx *bear.Context) {
+func (app *router) sessionDelIntercept(
+	_ http.ResponseWriter, _ *http.Request, ctx *bear.Context) {
 	sessionID := ctx.Get(forest.SessionID).(string)
 	if sessionID == sessionIDWithSelfDestruct {
 		ctx.Set(forest.SessionID, nil)
@@ -69,12 +70,12 @@ func (app *router) sessionDelIntercept(res http.ResponseWriter,
 	}
 	ctx.Next()
 }
-func (app *router) sessionVerify(res http.ResponseWriter, req *http.Request,
-	ctx *bear.Context) {
+func (app *router) sessionVerify(
+	_ http.ResponseWriter, _ *http.Request, ctx *bear.Context) {
 	_, ok := ctx.Get(forest.SessionID).(string)
 	if !ok {
 		ctx.Set(forest.Error, errors.New("sessionVerify failed"))
-		app.Ware("ServerError")(res, req, ctx)
+		app.Ware("ServerError")(ctx.ResponseWriter, ctx.Request, ctx)
 		return
 	} else {
 		ctx.Next()

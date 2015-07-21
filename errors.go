@@ -11,60 +11,60 @@ import (
 )
 
 func ErrorsBadRequest(app *forest.App) bear.HandlerFunc {
-	badRequest := func(res http.ResponseWriter, req *http.Request,
-		ctx *bear.Context) {
+	badRequest := func(
+		_ http.ResponseWriter, _ *http.Request, ctx *bear.Context) {
 		message := safeErrorMessage(app, ctx, app.Error("Generic"))
-		app.Response(res,
+		app.Response(ctx,
 			http.StatusBadRequest, forest.Failure, message).Write(nil)
 	}
 	return bear.HandlerFunc(badRequest)
 }
 
 func ErrorsConflict(app *forest.App) bear.HandlerFunc {
-	conflict := func(res http.ResponseWriter, req *http.Request,
-		ctx *bear.Context) {
+	conflict := func(
+		_ http.ResponseWriter, _ *http.Request, ctx *bear.Context) {
 		message := safeErrorMessage(app, ctx, app.Error("Generic"))
-		app.Response(res,
+		app.Response(ctx,
 			http.StatusConflict, forest.Failure, message).Write(nil)
 	}
 	return bear.HandlerFunc(conflict)
 }
 
 func ErrorsMethodNotAllowed(app *forest.App) bear.HandlerFunc {
-	methodNotAllowed := func(res http.ResponseWriter, req *http.Request,
-		ctx *bear.Context) {
+	methodNotAllowed := func(
+		_ http.ResponseWriter, _ *http.Request, ctx *bear.Context) {
 		message := safeErrorMessage(app, ctx, app.Error("MethodNotAllowed"))
-		app.Response(res,
+		app.Response(ctx,
 			http.StatusMethodNotAllowed, forest.Failure, message).Write(nil)
 	}
 	return bear.HandlerFunc(methodNotAllowed)
 }
 
 func ErrorsNotFound(app *forest.App) bear.HandlerFunc {
-	notFound := func(res http.ResponseWriter, req *http.Request,
-		ctx *bear.Context) {
+	notFound := func(
+		_ http.ResponseWriter, _ *http.Request, ctx *bear.Context) {
 		message := safeErrorMessage(app, ctx, app.Error("NotFound"))
-		app.Response(res,
+		app.Response(ctx,
 			http.StatusNotFound, forest.Failure, message).Write(nil)
 	}
 	return bear.HandlerFunc(notFound)
 }
 
 func ErrorsServerError(app *forest.App) bear.HandlerFunc {
-	serverError := func(res http.ResponseWriter, req *http.Request,
-		ctx *bear.Context) {
+	serverError := func(
+		_ http.ResponseWriter, _ *http.Request, ctx *bear.Context) {
 		message := safeErrorMessage(app, ctx, app.Error("Generic"))
-		app.Response(res,
+		app.Response(ctx,
 			http.StatusInternalServerError, forest.Failure, message).Write(nil)
 	}
 	return bear.HandlerFunc(serverError)
 }
 
 func ErrorsUnauthorized(app *forest.App) bear.HandlerFunc {
-	unauthorized := func(res http.ResponseWriter, req *http.Request,
-		ctx *bear.Context) {
+	unauthorized := func(
+		_ http.ResponseWriter, _ *http.Request, ctx *bear.Context) {
 		message := safeErrorMessage(app, ctx, app.Error("Unauthorized"))
-		app.Response(res,
+		app.Response(ctx,
 			http.StatusUnauthorized, forest.Failure, message).Write(nil)
 	}
 	return bear.HandlerFunc(unauthorized)

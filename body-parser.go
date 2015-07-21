@@ -12,30 +12,30 @@ import (
 )
 
 func BodyParser(app *forest.App) bear.HandlerFunc {
-	bodyParser := func(res http.ResponseWriter, req *http.Request,
-		ctx *bear.Context) {
+	bodyParser := func(
+		_ http.ResponseWriter, _ *http.Request, ctx *bear.Context) {
 		destination, ok := ctx.Get(forest.Body).(Populater)
 		if !ok {
 			ctx.Set(forest.Error,
 				fmt.Errorf("(*forest.App).BodyParser unitialized"))
 			message := safeErrorMessage(app, ctx, app.Error("Parse"))
-			app.Response(res, http.StatusInternalServerError,
+			app.Response(ctx, http.StatusInternalServerError,
 				forest.Failure, message).Write(nil)
 			return
 		}
-		if req.Body == nil {
+		if ctx.Request.Body == nil {
 			ctx.Set(forest.SafeError,
 				fmt.Errorf("%s: body is empty", app.Error("Parse")))
 			message := safeErrorMessage(app, ctx, app.Error("Parse"))
-			app.Response(res, http.StatusBadRequest,
+			app.Response(ctx, http.StatusBadRequest,
 				forest.Failure, message).Write(nil)
 			return
 		}
-		if err := destination.Populate(req.Body); err != nil {
+		if err := destination.Populate(ctx.Request.Body); err != nil {
 			ctx.Set(forest.SafeError,
 				fmt.Errorf("%s: %s", app.Error("Parse"), err))
 			message := safeErrorMessage(app, ctx, app.Error("Parse"))
-			app.Response(res, http.StatusBadRequest,
+			app.Response(ctx, http.StatusBadRequest,
 				forest.Failure, message).Write(nil)
 			return
 		}

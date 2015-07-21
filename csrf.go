@@ -18,32 +18,32 @@ type csrfPostBody struct {
 }
 
 func CSRF(app *forest.App) bear.HandlerFunc {
-	csrf := func(res http.ResponseWriter, req *http.Request,
-		ctx *bear.Context) {
-		if req.Body == nil {
-			app.Response(res, http.StatusBadRequest,
+	csrf := func(
+		_ http.ResponseWriter, _ *http.Request, ctx *bear.Context) {
+		if ctx.Request.Body == nil {
+			app.Response(ctx, http.StatusBadRequest,
 				forest.Failure, app.Error("CSRF")).Write(nil)
 			return
 		}
 		pb := new(csrfPostBody)
-		body, _ := ioutil.ReadAll(req.Body)
+		body, _ := ioutil.ReadAll(ctx.Request.Body)
 		if body == nil || len(body) < 2 { // smallest JSON body is {}, 2 chars
 			message := app.Error("Parse")
-			app.Response(res,
+			app.Response(ctx,
 				http.StatusBadRequest, forest.Failure, message).Write(nil)
 			return
 		}
-		// set req.Body back to an untouched io.ReadCloser
-		req.Body = ioutil.NopCloser(bytes.NewBuffer(body))
+		// set ctx.Request.Body back to an untouched io.ReadCloser
+		ctx.Request.Body = ioutil.NopCloser(bytes.NewBuffer(body))
 		if err := json.Unmarshal(body, pb); err != nil {
 			message := app.Error("Parse") + ": " + err.Error()
-			app.Response(res,
+			app.Response(ctx,
 				http.StatusBadRequest, forest.Failure, message).Write(nil)
 			return
 		}
 		sessionID, ok := ctx.Get(forest.SessionID).(string)
 		if !ok || sessionID != pb.SessionID {
-			app.Response(res, http.StatusBadRequest,
+			app.Response(ctx, http.StatusBadRequest,
 				forest.Failure, app.Error("CSRF")).Write(nil)
 		} else {
 			ctx.Next()
