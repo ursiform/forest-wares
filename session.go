@@ -71,7 +71,7 @@ func SessionGet(app *forest.App, manager SessionManager) bear.HandlerFunc {
 		sessionID := cookie.Value
 		userID, userJSON, err := manager.Read(sessionID)
 		if err != nil || userID == "" || userJSON == "" {
-			createEmptySession(sessionID)
+			createEmptySession(uuid.New())
 			return
 		}
 		if err := manager.Create(sessionID, userID, userJSON, ctx); err != nil {
@@ -81,7 +81,7 @@ func SessionGet(app *forest.App, manager SessionManager) bear.HandlerFunc {
 					println(fmt.Sprintf("error deleting session: %s", err))
 				}
 			}(sessionID, userID)
-			createEmptySession(sessionID)
+			createEmptySession(uuid.New())
 			return
 		}
 		// If SessionRefresh is set to false, the session will not refresh;
@@ -97,13 +97,11 @@ func SessionGet(app *forest.App, manager SessionManager) bear.HandlerFunc {
 			duration := app.Duration("Cookie")
 			// Refresh the cookie.
 			app.SetCookie(ctx, path, cookieName, cookieValue, duration)
-			defer func(sessionID string, userJSON string) {
-				err := manager.Update(sessionID, userID, userJSON,
-					app.Duration("Session"))
-				if err != nil {
-					println(fmt.Sprintf("error updating session: %s", err))
-				}
-			}(sessionID, userJSON)
+			err := manager.Update(sessionID, userID,
+				userJSON, app.Duration("Session"))
+			if err != nil {
+				println(fmt.Sprintf("error updating session: %s", err))
+			}
 		}
 		ctx.Next()
 	}
