@@ -64,7 +64,7 @@ func makeRequest(t *testing.T, app *forest.App,
 		request.AddCookie(&http.Cookie{Name: forest.SessionID, Value: auth})
 	}
 	response := httptest.NewRecorder()
-	app.Router.ServeHTTP(response, request)
+	app.ServeHTTP(response, request)
 	responseData := new(forest.Response)
 	responseBody, err := ioutil.ReadAll(response.Body)
 	if err != nil {

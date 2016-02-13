@@ -83,43 +83,43 @@ func (app *router) sessionVerify(
 }
 
 func (app *router) Route(path string) {
-	app.Router.On("GET", path, app.respondSuccess)
-	app.Router.On("GET", path+"/authenticate/failure",
+	app.On("GET", path, app.respondSuccess)
+	app.On("GET", path+"/authenticate/failure",
 		app.Ware("Authenticate"), app.respondSuccess)
-	app.Router.On("GET", path+"/authenticate/success",
+	app.On("GET", path+"/authenticate/success",
 		app.authenticate, app.Ware("Authenticate"), app.respondSuccess)
-	app.Router.On("GET", path+"/bad-request",
+	app.On("GET", path+"/bad-request",
 		app.Ware("BadRequest"))
-	app.Router.On("GET", path+"/conflict",
+	app.On("GET", path+"/conflict",
 		app.Ware("Conflict"))
-	app.Router.On("GET", path+"/csrf",
+	app.On("GET", path+"/csrf",
 		app.authenticate, app.Ware("CSRF"), app.respondSuccess)
-	app.Router.On("GET", path+"/not-found",
+	app.On("GET", path+"/not-found",
 		app.Ware("NotFound"))
-	app.Router.On("GET", path+"/safe-error/failure",
+	app.On("GET", path+"/safe-error/failure",
 		app.customSafeErrorFilterFailure)
-	app.Router.On("GET", path+"/safe-error/success",
+	app.On("GET", path+"/safe-error/success",
 		app.customSafeErrorFilterSuccess)
-	app.Router.On("GET", path+"/server-error",
+	app.On("GET", path+"/server-error",
 		app.Ware("ServerError"))
-	app.Router.On("GET", path+"/session-del",
+	app.On("GET", path+"/session-del",
 		app.Ware("SessionGet"),
 		app.sessionDelIntercept,
 		app.Ware("SessionDel"), app.respondSuccess)
-	app.Router.On("GET", path+"/session-get",
+	app.On("GET", path+"/session-get",
 		app.Ware("SessionGet"), app.sessionVerify, app.respondSuccess)
-	app.Router.On("GET", path+"/session-get/create-error",
+	app.On("GET", path+"/session-get/create-error",
 		app.sessionCreateError, app.Ware("SessionGet"),
 		app.sessionVerify, app.respondSuccess)
-	app.Router.On("GET", path+"/session-set",
+	app.On("GET", path+"/session-set",
 		app.Ware("SessionGet"), app.Ware("SessionSet"), app.respondSuccess)
-	app.Router.On("GET", path+"/unauthorized",
+	app.On("GET", path+"/unauthorized",
 		app.Ware("Unauthorized"))
-	app.Router.On("POST", path+"/body-parser/failure/no-init",
+	app.On("POST", path+"/body-parser/failure/no-init",
 		app.Ware("BodyParser"), app.respondSuccess)
-	app.Router.On("POST", path+"/body-parser/success",
+	app.On("POST", path+"/body-parser/success",
 		app.initPostParse, app.Ware("BodyParser"), app.respondSuccess)
-	app.Router.On("*", path, app.Ware("MethodNotAllowed"))
+	app.On("*", path, app.Ware("MethodNotAllowed"))
 }
 
 func newRouter(parent *forest.App) *router {
