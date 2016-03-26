@@ -21,5 +21,6 @@ func Authenticate(app *forest.App) bear.HandlerFunc {
 		}
 		ctx.Next()
 	}
-	return bear.HandlerFunc(authenticate)
+	handler, _, _ := bear.Handlerize(authenticate)
+	return handler
 }

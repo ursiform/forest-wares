@@ -48,5 +48,6 @@ func CSRF(app *forest.App) bear.HandlerFunc {
 			ctx.Next()
 		}
 	}
-	return bear.HandlerFunc(csrf)
+	handler, _, _ := bear.Handlerize(csrf)
+	return handler
 }

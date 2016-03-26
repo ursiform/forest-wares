@@ -41,5 +41,6 @@ func BodyParser(app *forest.App) bear.HandlerFunc {
 		}
 		ctx.Next()
 	}
-	return bear.HandlerFunc(bodyParser)
+	handler, _, _ := bear.Handlerize(bodyParser)
+	return handler
 }

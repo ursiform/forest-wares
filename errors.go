@@ -11,13 +11,13 @@ import (
 )
 
 func ErrorsBadRequest(app *forest.App) bear.HandlerFunc {
-	badRequest := func(
-		_ http.ResponseWriter, _ *http.Request, ctx *bear.Context) {
+	badRequest := func(ctx *bear.Context) {
 		message := safeErrorMessage(app, ctx, app.Error("Generic"))
 		app.Response(ctx,
 			http.StatusBadRequest, forest.Failure, message).Write(nil)
 	}
-	return bear.HandlerFunc(badRequest)
+	handler, _, _ := bear.Handlerize(badRequest)
+	return handler
 }
 
 func ErrorsConflict(app *forest.App) bear.HandlerFunc {
@@ -27,7 +27,8 @@ func ErrorsConflict(app *forest.App) bear.HandlerFunc {
 		app.Response(ctx,
 			http.StatusConflict, forest.Failure, message).Write(nil)
 	}
-	return bear.HandlerFunc(conflict)
+	handler, _, _ := bear.Handlerize(conflict)
+	return handler
 }
 
 func ErrorsMethodNotAllowed(app *forest.App) bear.HandlerFunc {
@@ -37,7 +38,8 @@ func ErrorsMethodNotAllowed(app *forest.App) bear.HandlerFunc {
 		app.Response(ctx,
 			http.StatusMethodNotAllowed, forest.Failure, message).Write(nil)
 	}
-	return bear.HandlerFunc(methodNotAllowed)
+	handler, _, _ := bear.Handlerize(methodNotAllowed)
+	return handler
 }
 
 func ErrorsNotFound(app *forest.App) bear.HandlerFunc {
@@ -47,7 +49,8 @@ func ErrorsNotFound(app *forest.App) bear.HandlerFunc {
 		app.Response(ctx,
 			http.StatusNotFound, forest.Failure, message).Write(nil)
 	}
-	return bear.HandlerFunc(notFound)
+	handler, _, _ := bear.Handlerize(notFound)
+	return handler
 }
 
 func ErrorsServerError(app *forest.App) bear.HandlerFunc {
@@ -57,7 +60,8 @@ func ErrorsServerError(app *forest.App) bear.HandlerFunc {
 		app.Response(ctx,
 			http.StatusInternalServerError, forest.Failure, message).Write(nil)
 	}
-	return bear.HandlerFunc(serverError)
+	handler, _, _ := bear.Handlerize(serverError)
+	return handler
 }
 
 func ErrorsUnauthorized(app *forest.App) bear.HandlerFunc {
@@ -67,5 +71,6 @@ func ErrorsUnauthorized(app *forest.App) bear.HandlerFunc {
 		app.Response(ctx,
 			http.StatusUnauthorized, forest.Failure, message).Write(nil)
 	}
-	return bear.HandlerFunc(unauthorized)
+	handler, _, _ := bear.Handlerize(unauthorized)
+	return handler
 }

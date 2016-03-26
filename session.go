@@ -13,8 +13,7 @@ import (
 )
 
 func SessionDel(app *forest.App, manager SessionManager) bear.HandlerFunc {
-	sessionDel := func(
-		_ http.ResponseWriter, _ *http.Request, ctx *bear.Context) {
+	sessionDel := func(ctx *bear.Context) {
 		sessionID, ok := ctx.Get(forest.SessionID).(string)
 		if !ok {
 			err := fmt.Errorf("SessionDel %s: %v",
@@ -44,12 +43,12 @@ func SessionDel(app *forest.App, manager SessionManager) bear.HandlerFunc {
 		}
 		ctx.Next()
 	}
-	return bear.HandlerFunc(sessionDel)
+	handler, _, _ := bear.Handlerize(sessionDel)
+	return handler
 }
 
 func SessionGet(app *forest.App, manager SessionManager) bear.HandlerFunc {
-	sessionGet := func(
-		_ http.ResponseWriter, _ *http.Request, ctx *bear.Context) {
+	sessionGet := func(ctx *bear.Context) {
 		cookieName := forest.SessionID
 		createEmptySession := func(sessionID string) {
 			path := app.CookiePath
@@ -105,7 +104,8 @@ func SessionGet(app *forest.App, manager SessionManager) bear.HandlerFunc {
 		}
 		ctx.Next()
 	}
-	return bear.HandlerFunc(sessionGet)
+	handler, _, _ := bear.Handlerize(sessionGet)
+	return handler
 }
 
 func SessionSet(app *forest.App, manager SessionManager) bear.HandlerFunc {
@@ -149,5 +149,6 @@ func SessionSet(app *forest.App, manager SessionManager) bear.HandlerFunc {
 		}
 		ctx.Next()
 	}
-	return bear.HandlerFunc(sessionSet)
+	handler, _, _ := bear.Handlerize(sessionSet)
+	return handler
 }
