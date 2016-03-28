@@ -12,8 +12,8 @@ import (
 	"net/http"
 )
 
-func SessionDel(app *forest.App, manager SessionManager) bear.HandlerFunc {
-	sessionDel := func(ctx *bear.Context) {
+func SessionDel(app *forest.App, manager SessionManager) func(ctx *bear.Context) {
+	return func(ctx *bear.Context) {
 		sessionID, ok := ctx.Get(forest.SessionID).(string)
 		if !ok {
 			err := fmt.Errorf("SessionDel %s: %v",
@@ -43,12 +43,10 @@ func SessionDel(app *forest.App, manager SessionManager) bear.HandlerFunc {
 		}
 		ctx.Next()
 	}
-	handler, _, _ := bear.Handlerize(sessionDel)
-	return handler
 }
 
-func SessionGet(app *forest.App, manager SessionManager) bear.HandlerFunc {
-	sessionGet := func(ctx *bear.Context) {
+func SessionGet(app *forest.App, manager SessionManager) func(ctx *bear.Context) {
+	return func(ctx *bear.Context) {
 		cookieName := forest.SessionID
 		createEmptySession := func(sessionID string) {
 			path := app.CookiePath
@@ -104,13 +102,10 @@ func SessionGet(app *forest.App, manager SessionManager) bear.HandlerFunc {
 		}
 		ctx.Next()
 	}
-	handler, _, _ := bear.Handlerize(sessionGet)
-	return handler
 }
 
-func SessionSet(app *forest.App, manager SessionManager) bear.HandlerFunc {
-	sessionSet := func(
-		_ http.ResponseWriter, _ *http.Request, ctx *bear.Context) {
+func SessionSet(app *forest.App, manager SessionManager) func(ctx *bear.Context) {
+	return func(ctx *bear.Context) {
 		userJSON, err := manager.Marshal(ctx)
 		if err != nil {
 			ctx.Set(forest.Error, err)
@@ -149,6 +144,4 @@ func SessionSet(app *forest.App, manager SessionManager) bear.HandlerFunc {
 		}
 		ctx.Next()
 	}
-	handler, _, _ := bear.Handlerize(sessionSet)
-	return handler
 }

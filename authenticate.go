@@ -10,9 +10,8 @@ import (
 	"net/http"
 )
 
-func Authenticate(app *forest.App) bear.HandlerFunc {
-	authenticate := func(
-		_ http.ResponseWriter, _ *http.Request, ctx *bear.Context) {
+func Authenticate(app *forest.App) func(ctx *bear.Context) {
+	return func(ctx *bear.Context) {
 		userID, ok := ctx.Get(forest.SessionUserID).(string)
 		if !ok || len(userID) == 0 {
 			app.Response(ctx, http.StatusUnauthorized, forest.Failure,
@@ -21,6 +20,4 @@ func Authenticate(app *forest.App) bear.HandlerFunc {
 		}
 		ctx.Next()
 	}
-	handler, _, _ := bear.Handlerize(authenticate)
-	return handler
 }

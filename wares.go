@@ -14,6 +14,8 @@ import (
 	"github.com/ursiform/forest"
 )
 
+type Ware func(ctx *bear.Context)
+
 func InstallBodyParser(app *forest.App) {
 	app.InstallWare("BodyParser", BodyParser(app), forest.WareInstalled)
 }

@@ -11,9 +11,8 @@ import (
 	"net/http"
 )
 
-func BodyParser(app *forest.App) bear.HandlerFunc {
-	bodyParser := func(
-		_ http.ResponseWriter, _ *http.Request, ctx *bear.Context) {
+func BodyParser(app *forest.App) func(ctx *bear.Context) {
+	return func(ctx *bear.Context) {
 		destination, ok := ctx.Get(forest.Body).(Populater)
 		if !ok {
 			ctx.Set(forest.Error,
@@ -41,6 +40,4 @@ func BodyParser(app *forest.App) bear.HandlerFunc {
 		}
 		ctx.Next()
 	}
-	handler, _, _ := bear.Handlerize(bodyParser)
-	return handler
 }
