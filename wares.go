@@ -63,7 +63,7 @@ func safeErrorMessage(app *forest.App, ctx *bear.Context,
 }
 
 func safeErrorFilter(app *forest.App, err error, friendly string) error {
-	if app.Debug {
+	if app.Debug() {
 		return err
 	} else {
 		if app.SafeErrorFilter != nil {

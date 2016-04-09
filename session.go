@@ -49,7 +49,7 @@ func SessionGet(app *forest.App, manager SessionManager) func(ctx *bear.Context)
 	return func(ctx *bear.Context) {
 		cookieName := forest.SessionID
 		createEmptySession := func(sessionID string) {
-			path := app.CookiePath
+			path := app.CookiePath()
 			if path == "" {
 				path = "/"
 			}
@@ -85,7 +85,7 @@ func SessionGet(app *forest.App, manager SessionManager) func(ctx *bear.Context)
 		// if it's not set or if it's set to true, the session is refreshed.
 		refresh, ok := ctx.Get(forest.SessionRefresh).(bool)
 		if !ok || refresh {
-			path := app.CookiePath
+			path := app.CookiePath()
 			if path == "" {
 				path = "/"
 			}

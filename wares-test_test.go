@@ -292,7 +292,7 @@ func TestSafeErrorFilter(t *testing.T) {
 			method, path, customUnsafeErrorMessage)
 	}
 	// test unsafe errors passing through if app.Debug is true
-	app.Debug = true
+	app.SetDebug(true)
 	path = root + "/safe-error/failure"
 	params = &requested{method: method, path: path}
 	want = &wanted{code: http.StatusInternalServerError, success: false}
