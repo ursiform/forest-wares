@@ -7,10 +7,11 @@ package wares
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/ursiform/bear"
-	"github.com/ursiform/forest"
 	"io/ioutil"
 	"net/http"
+
+	"github.com/ursiform/bear"
+	"github.com/ursiform/forest"
 )
 
 func CSRF(app *forest.App) func(ctx *bear.Context) {

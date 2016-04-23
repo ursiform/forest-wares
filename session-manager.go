@@ -5,8 +5,9 @@
 package wares
 
 import (
-	"github.com/ursiform/bear"
 	"time"
+
+	"github.com/ursiform/bear"
 )
 
 type SessionManager interface {

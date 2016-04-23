@@ -6,9 +6,10 @@ package wares
 
 import (
 	"fmt"
+	"net/http"
+
 	"github.com/ursiform/bear"
 	"github.com/ursiform/forest"
-	"net/http"
 )
 
 func BodyParser(app *forest.App) func(ctx *bear.Context) {

@@ -12,11 +12,12 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/ursiform/forest"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/ursiform/forest"
 )
 
 const (

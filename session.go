@@ -6,10 +6,11 @@ package wares
 
 import (
 	"fmt"
+	"net/http"
+
 	"github.com/pborman/uuid"
 	"github.com/ursiform/bear"
 	"github.com/ursiform/forest"
-	"net/http"
 )
 
 func SessionDel(app *forest.App, manager SessionManager) func(ctx *bear.Context) {

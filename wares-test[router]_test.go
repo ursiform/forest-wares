@@ -7,11 +7,12 @@ package wares_test
 import (
 	"encoding/json"
 	"errors"
+	"io"
+	"net/http"
+
 	"github.com/ursiform/bear"
 	"github.com/ursiform/forest"
 	"github.com/ursiform/forest-wares"
-	"io"
-	"net/http"
 )
 
 // implements Populater

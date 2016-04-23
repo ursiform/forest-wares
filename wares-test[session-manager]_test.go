@@ -6,9 +6,10 @@ package wares_test
 
 import (
 	"errors"
+	"time"
+
 	"github.com/ursiform/bear"
 	"github.com/ursiform/forest"
-	"time"
 )
 
 // implements SessionManager
