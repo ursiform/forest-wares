@@ -292,15 +292,15 @@ func TestSafeErrorFilter(t *testing.T) {
 		t.Errorf("%s %s should NOT return unsafe message: %s",
 			method, path, customUnsafeErrorMessage)
 	}
-	// test unsafe errors passing through if app.Debug is true
-	app.SetDebug(true)
+	// test unsafe errors passing through if app.Config.Debug is true
+	app.Config.Debug = true
 	path = root + "/safe-error/failure"
 	params = &requested{method: method, path: path}
 	want = &wanted{code: http.StatusInternalServerError, success: false}
 	_, forestResponse = makeRequest(t, app, params, want)
 	if forestResponse.Message != customUnsafeErrorMessage {
-		t.Errorf("%s %s should return unsafe message if app.Debug is true: %s",
-			method, path, customUnsafeErrorMessage)
+		t.Errorf("%s %s should return unsafe message if %s is true: %s",
+			method, path, "app.Config.Debug", customUnsafeErrorMessage)
 	}
 }
 
