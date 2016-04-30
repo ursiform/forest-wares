@@ -93,7 +93,7 @@ func makeRequest(t *testing.T, app *forest.App,
 func TestAuthenticateFailure(t *testing.T) {
 	method := "GET"
 	path := root + "/authenticate/failure"
-	app := forest.New()
+	app := forest.New("")
 	app.RegisterRoute(root, newRouter(app))
 	params := &requested{method: method, path: path}
 	want := &wanted{code: http.StatusUnauthorized, success: false}
@@ -103,7 +103,7 @@ func TestAuthenticateFailure(t *testing.T) {
 func TestAuthenticateSuccess(t *testing.T) {
 	method := "GET"
 	path := root + "/authenticate/success"
-	app := forest.New()
+	app := forest.New("")
 	app.RegisterRoute(root, newRouter(app))
 	params := &requested{method: method, path: path}
 	want := &wanted{code: http.StatusOK, success: true}
@@ -113,7 +113,7 @@ func TestAuthenticateSuccess(t *testing.T) {
 func TestBadRequest(t *testing.T) {
 	method := "GET"
 	path := root + "/bad-request"
-	app := forest.New()
+	app := forest.New("")
 	app.RegisterRoute(root, newRouter(app))
 	params := &requested{method: method, path: path}
 	want := &wanted{code: http.StatusBadRequest, success: false}
@@ -124,7 +124,7 @@ func TestBodyParserFailureBadInput(t *testing.T) {
 	method := "POST"
 	path := root + "/body-parser/success"
 	body := []byte("{BAD JSON}")
-	app := forest.New()
+	app := forest.New("")
 	app.RegisterRoute(root, newRouter(app))
 	params := &requested{body: body, method: method, path: path}
 	want := &wanted{code: http.StatusBadRequest, success: false}
@@ -134,7 +134,7 @@ func TestBodyParserFailureBadInput(t *testing.T) {
 func TestBodyParserFailureBodyNil(t *testing.T) {
 	method := "POST"
 	path := root + "/body-parser/success"
-	app := forest.New()
+	app := forest.New("")
 	app.RegisterRoute(root, newRouter(app))
 	params := &requested{method: method, path: path}
 	want := &wanted{code: http.StatusBadRequest, success: false}
@@ -145,7 +145,7 @@ func TestBodyParserFailureNoInit(t *testing.T) {
 	method := "POST"
 	path := root + "/body-parser/failure/no-init"
 	body := []byte(arbitraryJSON)
-	app := forest.New()
+	app := forest.New("")
 	app.RegisterRoute(root, newRouter(app))
 	params := &requested{body: body, method: method, path: path}
 	want := &wanted{code: http.StatusInternalServerError, success: false}
@@ -156,7 +156,7 @@ func TestBodyParserSuccess(t *testing.T) {
 	method := "POST"
 	path := root + "/body-parser/success"
 	body := []byte(arbitraryJSON)
-	app := forest.New()
+	app := forest.New("")
 	app.RegisterRoute(root, newRouter(app))
 	params := &requested{body: body, method: method, path: path}
 	want := &wanted{code: http.StatusOK, success: true}
@@ -166,7 +166,7 @@ func TestBodyParserSuccess(t *testing.T) {
 func TestConflict(t *testing.T) {
 	method := "GET"
 	path := root + "/conflict"
-	app := forest.New()
+	app := forest.New("")
 	app.RegisterRoute(root, newRouter(app))
 	params := &requested{method: method, path: path}
 	want := &wanted{code: http.StatusConflict, success: false}
@@ -176,7 +176,7 @@ func TestConflict(t *testing.T) {
 func TestCSRFFailureBodyNil(t *testing.T) {
 	method := "GET"
 	path := root + "/csrf"
-	app := forest.New()
+	app := forest.New("")
 	app.RegisterRoute(root, newRouter(app))
 	params := &requested{method: method, path: path}
 	want := &wanted{code: http.StatusBadRequest, success: false}
@@ -187,7 +187,7 @@ func TestCSRFFailureBodyParse(t *testing.T) {
 	method := "GET"
 	path := root + "/csrf"
 	body := []byte("{BAD JSON}")
-	app := forest.New()
+	app := forest.New("")
 	app.RegisterRoute(root, newRouter(app))
 	params := &requested{body: body, method: method, path: path}
 	want := &wanted{code: http.StatusBadRequest, success: false}
@@ -198,7 +198,7 @@ func TestCSRFFailureBodyTooShort(t *testing.T) {
 	method := "GET"
 	path := root + "/csrf"
 	body := []byte("{")
-	app := forest.New()
+	app := forest.New("")
 	app.RegisterRoute(root, newRouter(app))
 	params := &requested{body: body, method: method, path: path}
 	want := &wanted{code: http.StatusBadRequest, success: false}
@@ -209,7 +209,7 @@ func TestCSRFFailureWrongSessionID(t *testing.T) {
 	method := "GET"
 	path := root + "/csrf"
 	body := []byte(fmt.Sprintf("{\"sessionid\": \"WRONG-SESSION-ID\"}"))
-	app := forest.New()
+	app := forest.New("")
 	app.RegisterRoute(root, newRouter(app))
 	params := &requested{body: body, method: method, path: path}
 	want := &wanted{code: http.StatusBadRequest, success: false}
@@ -220,7 +220,7 @@ func TestCSRFSuccess(t *testing.T) {
 	method := "GET"
 	path := root + "/csrf"
 	body := []byte(fmt.Sprintf("{\"sessionid\": \"%s\"}", sessionIDExistent))
-	app := forest.New()
+	app := forest.New("")
 	app.RegisterRoute(root, newRouter(app))
 	params := &requested{body: body, method: method, path: path}
 	want := &wanted{code: http.StatusOK, success: true}
@@ -230,7 +230,7 @@ func TestCSRFSuccess(t *testing.T) {
 func TestMethodNotAllowed(t *testing.T) {
 	method := "OPTIONS"
 	path := root
-	app := forest.New()
+	app := forest.New("")
 	app.RegisterRoute(root, newRouter(app))
 	params := &requested{method: method, path: path}
 	want := &wanted{code: http.StatusMethodNotAllowed, success: false}
@@ -240,7 +240,7 @@ func TestMethodNotAllowed(t *testing.T) {
 func TestNotFound(t *testing.T) {
 	method := "GET"
 	path := root + "/not-found"
-	app := forest.New()
+	app := forest.New("")
 	app.RegisterRoute(root, newRouter(app))
 	params := &requested{method: method, path: path}
 	want := &wanted{code: http.StatusNotFound, success: false}
@@ -249,7 +249,7 @@ func TestNotFound(t *testing.T) {
 
 func TestSafeErrorFilter(t *testing.T) {
 	method := "GET"
-	app := forest.New()
+	app := forest.New("")
 	app.SafeErrorFilter = func(err error) error {
 		if err.Error() == customSafeErrorMessage {
 			return err
@@ -291,7 +291,7 @@ func TestSafeErrorFilter(t *testing.T) {
 func TestServerError(t *testing.T) {
 	method := "GET"
 	path := root + "/server-error"
-	app := forest.New()
+	app := forest.New("")
 	app.RegisterRoute(root, newRouter(app))
 	params := &requested{method: method, path: path}
 	want := &wanted{code: http.StatusInternalServerError, success: false}
@@ -302,7 +302,7 @@ func TestSessionSetDelBadUserIDError(t *testing.T) {
 	method := "GET"
 	path := root + "/session-del"
 	auth := sessionIDWithUserDestruct
-	app := forest.New()
+	app := forest.New("")
 	app.RegisterRoute(root, newRouter(app))
 	params := &requested{auth: auth, method: method, path: path}
 	want := &wanted{code: http.StatusInternalServerError, success: false}
@@ -313,7 +313,7 @@ func TestSessionSetDelBadSessionIDError(t *testing.T) {
 	method := "GET"
 	path := root + "/session-del"
 	auth := sessionIDWithSelfDestruct
-	app := forest.New()
+	app := forest.New("")
 	app.RegisterRoute(root, newRouter(app))
 	params := &requested{auth: auth, method: method, path: path}
 	want := &wanted{code: http.StatusInternalServerError, success: false}
@@ -324,7 +324,7 @@ func TestSessionDelFailure(t *testing.T) {
 	method := "GET"
 	path := root + "/session-del"
 	auth := sessionIDWithDeleteError
-	app := forest.New()
+	app := forest.New("")
 	app.RegisterRoute(root, newRouter(app))
 	params := &requested{auth: auth, method: method, path: path}
 	want := &wanted{code: http.StatusInternalServerError, success: false}
@@ -335,7 +335,7 @@ func TestSessionDelSuccess(t *testing.T) {
 	method := "GET"
 	path := root + "/session-del"
 	auth := sessionIDExistent
-	app := forest.New()
+	app := forest.New("")
 	app.RegisterRoute(root, newRouter(app))
 	params := &requested{auth: auth, method: method, path: path}
 	want := &wanted{code: http.StatusOK, success: true}
@@ -345,7 +345,7 @@ func TestSessionDelSuccess(t *testing.T) {
 func TestSessionGetSuccessCreateEmpty(t *testing.T) {
 	method := "GET"
 	path := root + "/session-get"
-	app := forest.New()
+	app := forest.New("")
 	app.RegisterRoute(root, newRouter(app))
 	params := &requested{method: method, path: path}
 	want := &wanted{code: http.StatusOK, success: true}
@@ -356,7 +356,7 @@ func TestSessionGetSuccessCreateError(t *testing.T) {
 	method := "GET"
 	path := root + "/session-get/create-error"
 	auth := sessionIDExistent
-	app := forest.New()
+	app := forest.New("")
 	app.RegisterRoute(root, newRouter(app))
 	params := &requested{auth: auth, method: method, path: path}
 	want := &wanted{code: http.StatusOK, success: true}
@@ -367,7 +367,7 @@ func TestSessionGetSuccessCreateErrorWithDeleteError(t *testing.T) {
 	method := "GET"
 	path := root + "/session-get/create-error"
 	auth := sessionIDWithDeleteError
-	app := forest.New()
+	app := forest.New("")
 	app.RegisterRoute(root, newRouter(app))
 	params := &requested{auth: auth, method: method, path: path}
 	want := &wanted{code: http.StatusOK, success: true}
@@ -378,7 +378,7 @@ func TestSessionGetSuccessExistent(t *testing.T) {
 	method := "GET"
 	path := root + "/session-get"
 	auth := sessionIDExistent
-	app := forest.New()
+	app := forest.New("")
 	app.RegisterRoute(root, newRouter(app))
 	params := &requested{auth: auth, method: method, path: path}
 	want := &wanted{code: http.StatusOK, success: true}
@@ -389,7 +389,7 @@ func TestSessionGetSuccessExistentUpdateError(t *testing.T) {
 	method := "GET"
 	path := root + "/session-get"
 	auth := sessionIDWithUpdateError
-	app := forest.New()
+	app := forest.New("")
 	app.RegisterRoute(root, newRouter(app))
 	params := &requested{auth: auth, method: method, path: path}
 	want := &wanted{code: http.StatusOK, success: true}
@@ -400,7 +400,7 @@ func TestSessionGetSuccessNonexistent(t *testing.T) {
 	method := "GET"
 	path := root + "/session-get"
 	auth := sessionIDNonExistent
-	app := forest.New()
+	app := forest.New("")
 	app.RegisterRoute(root, newRouter(app))
 	params := &requested{auth: auth, method: method, path: path}
 	want := &wanted{code: http.StatusOK, success: true}
@@ -411,7 +411,7 @@ func TestSessionSetBadSessionIDError(t *testing.T) {
 	method := "GET"
 	path := root + "/session-set"
 	auth := sessionIDWithSelfDestruct
-	app := forest.New()
+	app := forest.New("")
 	app.RegisterRoute(root, newRouter(app))
 	params := &requested{auth: auth, method: method, path: path}
 	want := &wanted{code: http.StatusInternalServerError, success: false}
@@ -422,7 +422,7 @@ func TestSessionSetBadUserIDError(t *testing.T) {
 	method := "GET"
 	path := root + "/session-set"
 	auth := sessionIDWithUserDestruct
-	app := forest.New()
+	app := forest.New("")
 	app.RegisterRoute(root, newRouter(app))
 	params := &requested{auth: auth, method: method, path: path}
 	want := &wanted{code: http.StatusInternalServerError, success: false}
@@ -433,7 +433,7 @@ func TestSessionSetMarshalError(t *testing.T) {
 	method := "GET"
 	path := root + "/session-set"
 	auth := sessionIDWithMarshalError
-	app := forest.New()
+	app := forest.New("")
 	app.RegisterRoute(root, newRouter(app))
 	params := &requested{auth: auth, method: method, path: path}
 	want := &wanted{code: http.StatusInternalServerError, success: false}
@@ -444,7 +444,7 @@ func TestSessionSetSuccess(t *testing.T) {
 	method := "GET"
 	path := root + "/session-set"
 	auth := sessionIDExistent
-	app := forest.New()
+	app := forest.New("")
 	app.RegisterRoute(root, newRouter(app))
 	params := &requested{auth: auth, method: method, path: path}
 	want := &wanted{code: http.StatusOK, success: true}
@@ -455,7 +455,7 @@ func TestSessionSetUpdateError(t *testing.T) {
 	method := "GET"
 	path := root + "/session-set"
 	auth := sessionIDWithUpdateError
-	app := forest.New()
+	app := forest.New("")
 	app.RegisterRoute(root, newRouter(app))
 	params := &requested{auth: auth, method: method, path: path}
 	want := &wanted{code: http.StatusInternalServerError, success: false}
@@ -465,7 +465,7 @@ func TestSessionSetUpdateError(t *testing.T) {
 func TestUnauthorized(t *testing.T) {
 	method := "GET"
 	path := root + "/unauthorized"
-	app := forest.New()
+	app := forest.New("")
 	app.RegisterRoute(root, newRouter(app))
 	params := &requested{method: method, path: path}
 	want := &wanted{code: http.StatusUnauthorized, success: false}
